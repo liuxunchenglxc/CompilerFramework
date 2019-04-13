@@ -1,3 +1,18 @@
+//    CompilerFramework NUnitTest
+//    Copyright(C) 2019  ¡ı—∏≥–
+
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.If not, see<https://www.gnu.org/licenses/>.
 using NUnit.Framework;
 using CompilerFramework;
 using System.IO;
@@ -38,7 +53,7 @@ namespace CompileTests
             formatDigitDelegate = FormateDigit;
             LexerFramework.AddLexItem("Digit", "[0-9]+", formatDigitDelegate);
             LexerFramework.AddLexItem("Identifier", "[A-Za-z][A-Za-z0-9_]*");
-            LexerFramework.OnLexdEventHandler += OnLexd;
+            LexerFramework.OnLexedEventHandler += OnLexd;
         }
         [Test]
         public void TestAddLexItem()
@@ -119,27 +134,27 @@ namespace CompileTests
             LexerFramework = new HLlangLexerFramework(3);
             //Group 0 for normal Lex
             LexerFramework.AddLexItem("Null", @"\s+", x => null);
-            LexerFramework.AddResWordsLexItem("Type", null, 0, "int", "long", "float", "double", "string", "char", "bool");
-            LexerFramework.AddResWordsLexItem("ResWord", null, 0, "struct", "class", "void", "public", "private");
-            LexerFramework.AddDelimitersLexItem("Annotation", null, 0, "//", @"/\*");
-            LexerFramework.AddOperatorsLexItem("Operator", null, 0, "==", "!=", ">=", "<=", "&&", @"\|\|", @"\*\*", "=", "!", "&", @"\|", "<", ">", @"\*", @"\+", "-", "/", @"\\", "%");
-            LexerFramework.AddDelimitersLexItem("Delimiter", null, 0, ";", ":", @"\.", ",", "{", "}");
-            LexerFramework.AddConstantsLexItem("String", null, 0, true, "(?=\").*(?=\")");
-            LexerFramework.AddConstantsLexItem("AtString", null, 0, true, "(?=@\").*(?=\")");
-            LexerFramework.AddConstantsLexItem("Char", null, 0, true, "'.'");
-            LexerFramework.AddConstantsLexItem("Real", x => double.Parse(x), 0, false, @"(-|\+?)\d+\.\d+");
-            LexerFramework.AddConstantsLexItem("Digit", x => long.Parse(x), 0, false, @"(-|\+?)[0-9]+");
-            LexerFramework.AddConstantsLexItem("Bool", x => bool.Parse(x), 0, true, "true|false");
-            LexerFramework.AddIdentifierLexItem();
+            LexerFramework.AddResWords("Type", null, 0, "int", "long", "float", "double", "string", "char", "bool");
+            LexerFramework.AddResWords("ResWord", null, 0, "struct", "class", "void", "public", "private");
+            LexerFramework.AddDelimiters("Annotation", null, 0, "//", @"/\*");
+            LexerFramework.AddOperators("Operator", null, 0, "==", "!=", ">=", "<=", "&&", @"\|\|", @"\*\*", "=", "!", "&", @"\|", "<", ">", @"\*", @"\+", "-", "/", @"\\", "%");
+            LexerFramework.AddDelimiters("Delimiter", null, 0, ";", ":", @"\.", ",", "{", "}");
+            LexerFramework.AddConstants("String", null, 0, true, "(?=\").*(?=\")");
+            LexerFramework.AddConstants("AtString", null, 0, true, "(?=@\").*(?=\")");
+            LexerFramework.AddConstants("Char", null, 0, true, "'.'");
+            LexerFramework.AddConstants("Real", x => double.Parse(x), 0, false, @"(-|\+?)\d+\.\d+");
+            LexerFramework.AddConstants("Digit", x => long.Parse(x), 0, false, @"(-|\+?)[0-9]+");
+            LexerFramework.AddConstants("Bool", x => bool.Parse(x), 0, true, "true|false");
+            LexerFramework.AddIdentifier();
             //Group 1 for single line annotation
             LexerFramework.CurrentAddGroupNumber = 1;
             LexerFramework.AddLexItem("AnnotationContext", @".+");
             //Group 2 for multiple line annotation
             LexerFramework.CurrentAddGroupNumber = 2;
-            LexerFramework.AddDelimitersLexItem("Annotation", null, 0, @".*\*/");
+            LexerFramework.AddDelimiters("Annotation", null, 0, @".*\*/");
             LexerFramework.AddLexItem("AnnotationContext", @".+$", x => null);
             //Bound Event
-            LexerFramework.OnLexdEventHandler += OnLexd;
+            LexerFramework.OnLexedEventHandler += OnLexd;
         }
         [Test]
         public void TestAddLexItem()

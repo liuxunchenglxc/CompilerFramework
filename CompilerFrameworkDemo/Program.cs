@@ -1,17 +1,33 @@
-﻿using System;
+﻿//    CompilerFramework Demo
+//    Copyright(C) 2019  刘迅承
+
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.If not, see<https://www.gnu.org/licenses/>.
+using System;
 using CompilerFramework;
 using System.IO;
 using System.Collections.Generic;
 
 namespace CompilerFrameworkDemo
 {
-    class DemoClangWithBaseFramework
+    class PartialClangDemo
     {
+        // using high level framework
         HLlangLexerFramework LexerFramework;
-
+        // results collection
         public List<KeyValuePair<string, object>> Lexeresults { get; set; }
-
-        public bool OnLexd(LexerFramework sender, Lexeresult e)
+        // deal with different results, and contral the lex groups.
+        public bool OnLexed(LexerFramework sender, Lexeresult e)
         {
             switch (sender.CurrentLexGroup)
             {
@@ -29,9 +45,11 @@ namespace CompilerFrameworkDemo
                         return true;
                     }
                 case 1:
+                    // single line annotation back to normal
                     sender.CurrentLexGroup = 0;// back to normal group.
                     return false;
                 case 2:
+                    // multiple line annotation back to normal
                     if (e.Name == "Annotation") sender.CurrentLexGroup = 0;// back to normal group.
                     return false;
                 default:
@@ -40,33 +58,67 @@ namespace CompilerFrameworkDemo
         }
         void SetUpLexer()
         {
+            // initialize the results collector
             Lexeresults = new List<KeyValuePair<string, object>>();
+            // initialize LexerFramework with three lex groups
             LexerFramework = new HLlangLexerFramework(3);
-            //Group 0 for normal Lex
+
+            // Group 0 for normal Lex
+
+            // drop all blank words
             LexerFramework.AddLexItem("Null", @"\s+", x => null);
-            LexerFramework.AddResWordsLexItem("Type", null, 0, "int", "long", "float", "double", "string", "char", "bool");
-            LexerFramework.AddResWordsLexItem("ResWord", null, 0, "struct", "class", "void", "public", "private");
-            LexerFramework.AddDelimitersLexItem("Annotation", null, 0, "//", @"/\*");
-            LexerFramework.AddOperatorsLexItem("Operator", null, 0, "==", "!=", ">=", "<=", "&&", @"\|\|", @"\*\*", "=", "!", "&", @"\|", "<", ">", @"\*", @"\+", "-", "/", @"\\", "%");
-            LexerFramework.AddDelimitersLexItem("Delimiter", null, 0, ";", ":", @"\.", ",", "{", "}");
-            LexerFramework.AddConstantsLexItem("String", null, 0, true, "(?=\").*(?=\")");
-            LexerFramework.AddConstantsLexItem("AtString", null, 0, true, "(?=@\").*(?=\")");
-            LexerFramework.AddConstantsLexItem("Char", null, 0, true, "'.'");
-            LexerFramework.AddConstantsLexItem("Real", x => double.Parse(x), 0, false, @"(-|\+?)\d+\.\d+");
-            LexerFramework.AddConstantsLexItem("Digit", x => long.Parse(x), 0, false, @"(-|\+?)[0-9]+");
-            LexerFramework.AddConstantsLexItem("Bool", x => bool.Parse(x), 0, true, "true|false");
-            LexerFramework.AddIdentifierLexItem();
-            //Group 1 for single line annotation
+
+            // add Reserved Words first, to avoid be cover by others in matching
+            // to distinguish the type reserved words
+            LexerFramework.AddResWords("Type", null, 0, "int", "long", "float", "double", "string", "char", "bool");
+            // you can also distinguish other reserved words or not
+            LexerFramework.AddResWords("ResWord", null, 0, "struct", "class", "void", "public", "private");
+
+            // add all kinds of symbols
+            // composite symbol fisrt, such as "//",">=" .etc
+            LexerFramework.AddDelimiters("Annotation", null, 0, "//", @"/\*");
+            // be careful of Regular Expression Symbols and transfer its meaning 
+            LexerFramework.AddOperators("Operator", null, 0, "==", "!=", ">=", "<=", "&&", @"\|\|", @"\*\*", "=", "!", "&", @"\|", "<", ">", @"\*", @"\+", "-", "/", @"\\", "%");
+            // rest of symbols
+            LexerFramework.AddDelimiters("Delimiter", null, 0, ";", ":", @"\.", ",", "{", "}");
+
+            // add all kinds of Constants
+            // normal string
+            LexerFramework.AddConstants("String", null, 0, true, "(?=\").*(?=\")");
+            // un-transferred-meaning string
+            LexerFramework.AddConstants("AtString", null, 0, true, "(?=@\").*(?=\")");
+            // char
+            LexerFramework.AddConstants("Char", null, 0, true, "'.'");
+            // double type number
+            LexerFramework.AddConstants("Real", x => double.Parse(x), 0, false, @"(-|\+?)\d+\.\d+");
+            // int/long type number
+            LexerFramework.AddConstants("Digit", x => long.Parse(x), 0, false, @"(-|\+?)[0-9]+");
+            // boolean type
+            LexerFramework.AddConstants("Bool", x => bool.Parse(x), 0, true, "true|false");
+
+            // add indentifier define (start with [a-zA-Z] and follow [a-zA-Z0-9_]* as normal)
+            LexerFramework.AddIdentifier();
+
+            // Group 1 for single line annotation
+
+            // set which group you want to add
             LexerFramework.CurrentAddGroupNumber = 1;
+            // add single line annotation context lex item
             LexerFramework.AddLexItem("AnnotationContext", @".+");
-            //Group 2 for multiple line annotation
+
+            // Group 2 for multiple line annotation
+
+            // set which group you want to add
             LexerFramework.CurrentAddGroupNumber = 2;
-            LexerFramework.AddDelimitersLexItem("Annotation", null, 0, @".*\*/");
+            // add multiple line annotation end-word lex item
+            LexerFramework.AddDelimiters("Annotation", null, 0, @".*\*/");
+            // add multiple line annotation context lex item
             LexerFramework.AddLexItem("AnnotationContext", @".+$", x => null);
-            //Bound Event
-            LexerFramework.OnLexdEventHandler += OnLexd;
+
+            // Bound OnLexed Event
+            LexerFramework.OnLexedEventHandler += OnLexed;
         }
-        public DemoClangWithBaseFramework()
+        public PartialClangDemo()
         {
             SetUpLexer();
         }
@@ -76,7 +128,7 @@ namespace CompilerFrameworkDemo
     {
         static void Main(string[] args)
         {
-            DemoClangWithBaseFramework demoClangWithBaseFramework = new DemoClangWithBaseFramework();
+            PartialClangDemo demoClangWithBaseFramework = new PartialClangDemo();
             if (args.Length == 0)
             {
                 Console.WriteLine("Please input one line code:");
@@ -90,6 +142,7 @@ namespace CompilerFrameworkDemo
                 {
                     Console.WriteLine(e.Message);
                 }
+                // show results
                 Console.WriteLine("The number of Lexs is " + i);
                 foreach (KeyValuePair<string, object> keyValuePair in demoClangWithBaseFramework.Lexeresults)
                 {
@@ -110,6 +163,7 @@ namespace CompilerFrameworkDemo
                     {
                         Console.WriteLine(e.Message);
                     }
+                    // show results
                     Console.WriteLine("The number of Lexs is " + i);
                     foreach (KeyValuePair<string, object> keyValuePair in demoClangWithBaseFramework.Lexeresults)
                     {

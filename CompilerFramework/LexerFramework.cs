@@ -1,4 +1,19 @@
-﻿using System;
+﻿//    CompilerFramework
+//    Copyright(C) 2019  刘迅承
+
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.If not, see<https://www.gnu.org/licenses/>.
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -24,11 +39,11 @@ namespace CompilerFramework
         /// <param name="e">The single result of Lex</param>
         /// <param name="sender">Incoming object</param>
         /// <returns>Is count this Lex result</returns>
-        public delegate bool OnLexdDelegate(LexerFramework sender, Lexeresult e);
+        public delegate bool OnLexedDelegate(LexerFramework sender, Lexeresult e);
         /// <summary>
         /// When single Lex result produced
         /// </summary>
-        public event OnLexdDelegate OnLexdEventHandler;
+        public event OnLexedDelegate OnLexedEventHandler;
         /// <summary>
         /// The list of Lex items, defualt use [0], others for advanced usage.
         /// </summary>
@@ -144,7 +159,7 @@ namespace CompilerFramework
             {
                 Lexeresult Lexeresult = new Lexeresult(count, LexItem.Name, value); // save the result
                 // call event to notice user to receive it
-                if (OnLexdEventHandler(this, Lexeresult)) count++; // must be one result for the start with "^" parttern
+                if (OnLexedEventHandler(this, Lexeresult)) count++; // must be one result for the start with "^" parttern
             }
             int restLenght = LexObject.Length - match.Length;
             LexObject = LexObject.Substring(match.Length, restLenght);// for continuous operate
@@ -263,7 +278,7 @@ namespace CompilerFramework
         /// <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
         /// <param name="regexOptions">Regular Expression Options</param>
         /// <param name="regExprs">Regular Expressions of Lex items, and auto add <c>(?=\W|$)</c> to the end</param>
-        public void AddResWordsLexItem(string name = "ResWord", FormatCapTextDelegate formatCapTextDelegate = null, RegexOptions regexOptions = RegexOptions.None, params string[] regExprs)
+        public void AddResWords(string name = "ResWord", FormatCapTextDelegate formatCapTextDelegate = null, RegexOptions regexOptions = RegexOptions.None, params string[] regExprs)
         {
             for (int i = 0; i < regExprs.Length; i++)
             {
@@ -278,7 +293,7 @@ namespace CompilerFramework
         /// <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
         /// <param name="regexOptions">Regular Expression Options</param>
         /// <param name="regExpr">Regular Expression of Lex item</param>
-        public void AddIdentifierLexItem(string name = "Identifier", FormatCapTextDelegate formatCapTextDelegate = null, RegexOptions regexOptions = RegexOptions.None, string regExpr = @"[A-Za-z]\w*")
+        public void AddIdentifier(string name = "Identifier", FormatCapTextDelegate formatCapTextDelegate = null, RegexOptions regexOptions = RegexOptions.None, string regExpr = @"[A-Za-z]\w*")
         {
             AddLexItem(name, regExpr, formatCapTextDelegate, regexOptions, CurrentAddGroupNumber);
         }
@@ -289,7 +304,7 @@ namespace CompilerFramework
         /// <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
         /// <param name="regexOptions">Regular Expression Options</param>
         /// <param name="regExprs">Regular Expressions of Lex items</param>
-        public void AddOperatorsLexItem(string name = "Operator", FormatCapTextDelegate formatCapTextDelegate = null, RegexOptions regexOptions = RegexOptions.None, params string[] regExprs)
+        public void AddOperators(string name = "Operator", FormatCapTextDelegate formatCapTextDelegate = null, RegexOptions regexOptions = RegexOptions.None, params string[] regExprs)
         {
             for (int i = 0; i < regExprs.Length; i++)
             {
@@ -303,7 +318,7 @@ namespace CompilerFramework
         /// <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
         /// <param name="regexOptions">Regular Expression Options</param>
         /// <param name="regExprs">Regular Expressions of Lex items</param>
-        public void AddDelimitersLexItem(string name = "Delimiter", FormatCapTextDelegate formatCapTextDelegate = null, RegexOptions regexOptions = RegexOptions.None, params string[] regExprs)
+        public void AddDelimiters(string name = "Delimiter", FormatCapTextDelegate formatCapTextDelegate = null, RegexOptions regexOptions = RegexOptions.None, params string[] regExprs)
         {
             for (int i = 0; i < regExprs.Length; i++)
             {
@@ -318,7 +333,7 @@ namespace CompilerFramework
         /// <param name="regexOptions">Regular Expression Options</param>
         /// <param name="isAddZeroWidthAssertion">Is auto add <c>(?=\w|$)</c> to the end of RegExprs</param>
         /// <param name="regExprs">Regular Expressions of Lex items</param>
-        public void AddConstantsLexItem(string name = "Constant", FormatCapTextDelegate formatCapTextDelegate = null, RegexOptions regexOptions = RegexOptions.None, bool isAddZeroWidthAssertion = true, params string[] regExprs)
+        public void AddConstants(string name = "Constant", FormatCapTextDelegate formatCapTextDelegate = null, RegexOptions regexOptions = RegexOptions.None, bool isAddZeroWidthAssertion = true, params string[] regExprs)
         {
             for (int i = 0; i < regExprs.Length; i++)
             {
