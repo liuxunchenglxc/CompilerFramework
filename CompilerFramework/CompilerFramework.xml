@@ -1,0 +1,266 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CompilerFramework</name>
+    </assembly>
+    <members>
+        <member name="T:CompilerFramework.ParserFramework">
+            <summary>
+            Framework of Parser
+            </summary>
+        </member>
+        <member name="P:CompilerFramework.ParserFramework.ParseGroupCount">
+            <summary>
+            The number of ParseGroups
+            </summary>
+        </member>
+        <member name="P:CompilerFramework.ParserFramework.CurrentParseGroup">
+            <summary>
+            For advanced usage, like multi-entrance processing.
+            </summary>
+        </member>
+        <member name="T:CompilerFramework.ParserFramework.OnParsedDelegate">
+            <summary>
+            Single parse result receive delegate
+            </summary>
+            <param name="parseResult">The single result of parse</param>
+            <param name="index">The order of result start from 0</param>
+            <returns>Is count this parse result</returns>
+        </member>
+        <member name="E:CompilerFramework.ParserFramework.OnParsedHandler">
+            <summary>
+            When single parse result produced
+            </summary>
+        </member>
+        <member name="P:CompilerFramework.ParserFramework.ParseItems">
+            <summary>
+            The list of parse items, defualt use [0], others for advanced usage.
+            </summary>
+        </member>
+        <member name="M:CompilerFramework.ParserFramework.#ctor">
+            <summary>
+            Default construct menthod
+            </summary>
+        </member>
+        <member name="M:CompilerFramework.ParserFramework.#ctor(System.Int32)">
+            <summary>
+            Construct menthod with multi-group processing
+            </summary>
+        </member>
+        <member name="M:CompilerFramework.ParserFramework.#ctor(System.Collections.Generic.List{CompilerFramework.ParseItem}[])">
+            <summary>
+            Construct menthod with parseItems
+            </summary>
+            <param name="parseItems">Prepared parseItems</param>
+        </member>
+        <member name="M:CompilerFramework.ParserFramework.AddParseItem(System.String,System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.Int32)">
+            <summary>
+            Add a parse item, and parse with this order.
+            </summary>
+            <param name="name">Name of item</param>
+            <param name="regExpr">Regular Expression of Parse, and automately add "^" at head</param>
+            <param name="regexOptions">Regular Expression Options</param>
+            <param name="formatCapTextDelegate">The delegate of formatting the result of regExpr</param>
+            <param name="group">ParseGroup for advanced usage</param>
+            <exception cref="T:CompilerFramework.ParserFrameException">if parse group number is out of limite</exception>
+        </member>
+        <member name="M:CompilerFramework.ParserFramework.ParseStream(System.IO.TextReader,System.Int32)">
+            <summary>
+            Parse multiple lines string or file from TextReader, but as single line read-parttern.
+            If formated value equal null, then drop it.
+            By the way, please get the result from OnParsedHandler one by one.
+            For example, you can write a collector for receiving results.
+            </summary>
+            <param name="textReader">TextReader of string or file</param>
+            <param name="group">ParseGroup for advanced usage</param>
+            <returns>the count of results</returns>
+            <exception cref="T:CompilerFramework.ParserFrameException">if input cannot be matched by parse items</exception>
+        </member>
+        <member name="M:CompilerFramework.ParserFramework.ParseString(System.String@,CompilerFramework.ParseItem,System.Int64@)">
+            <summary>
+            Parse a single line string, if formated value equal null, then drop it and return true.
+            </summary>
+            <param name="parseObject">that string will be parsed</param>
+            <param name="parseItem">parse item for parse string</param>
+            <param name="count">count of parse result</param>
+            <returns>match result</returns>
+        </member>
+        <member name="T:CompilerFramework.ParseItem">
+            <summary>
+            The item of Parser
+            </summary>
+        </member>
+        <member name="P:CompilerFramework.ParseItem.Name">
+            <summary>
+            Name of parse item
+            </summary>
+        </member>
+        <member name="P:CompilerFramework.ParseItem.FormatCapText">
+            <summary>
+            The delegate of formatting the result of RegExpr
+            </summary>
+        </member>
+        <member name="M:CompilerFramework.ParseItem.SetRegex(System.String,System.Text.RegularExpressions.RegexOptions)">
+            <summary>
+            Set the Regex
+            </summary>
+        </member>
+        <member name="T:CompilerFramework.FormatCapTextDelegate">
+            <summary>
+            The delegate of formatting CapText.
+            </summary>
+            <param name="capText">capText by RegExpr</param>
+            <returns></returns>
+        </member>
+        <member name="P:CompilerFramework.ParseResult.Name">
+            <summary>
+            Name of parse result
+            </summary>
+        </member>
+        <member name="P:CompilerFramework.ParseResult.Value">
+            <summary>
+            Value of parse result, if you not define the type of this, its string.
+            </summary>
+        </member>
+        <member name="T:CompilerFramework.HLlangParserFramework">
+            <summary>
+            High level programing language parser framework
+            </summary>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.#ctor">
+            <summary>
+            Construct a parser with one processing group.
+            </summary>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.#ctor(System.Int32)">
+            <summary>
+            For advanced usage, like mutli-entrance processing
+            </summary>
+            <param name="groupCount">the number of group</param>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.#ctor(System.Collections.Generic.List{CompilerFramework.ParseItem}[])">
+            <summary>
+            Construct menthod with parseItems
+            </summary>
+            <param name="parseItems">Prepared parseItems</param>
+        </member>
+        <member name="P:CompilerFramework.HLlangParserFramework.AddCurrentGroupNumber">
+            <summary>
+            Which ParseGroup you want to add items.
+            </summary>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.AddParseItem(System.String,System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions)">
+            <summary>
+            Add a parse item in group of AddCurrentGroupNumber, and parse with this order.
+            </summary>
+            <param name="name">Name of item</param>
+            <param name="regExpr">Regular Expression of Parse, and automately add "^" at head</param>
+            <param name="regexOptions">Regular Expression Options</param>
+            <param name="formatCapTextDelegate">The delegate of formatting the result of regExpr</param>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.AddResWordsParseItem(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.String[])">
+            <summary>
+            Add reserved words parse items, and recomand to do this before add indentifier parse item.
+            </summary>
+            <param name="name">Name of parse items</param>
+            <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
+            <param name="regexOptions">Regular Expression Options</param>
+            <param name="regExprs">Regular Expressions of parse items, and auto add <c>(?=\W|$)</c> to the end</param>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.AddIdentifierParseItem(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.String)">
+            <summary>
+            Add identifier parse item, and recomand to do this after add reserved words parse item.
+            </summary>
+            <param name="name">Name of parse item</param>
+            <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
+            <param name="regexOptions">Regular Expression Options</param>
+            <param name="regExpr">Regular Expression of parse item</param>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.AddOperatorsParseItem(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.String[])">
+            <summary>
+            Add operators parse items, and recomand to add composite operators first.
+            </summary>
+            <param name="name">Name of parse items</param>
+            <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
+            <param name="regexOptions">Regular Expression Options</param>
+            <param name="regExprs">Regular Expressions of parse items</param>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.AddDelimitersParseItem(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.String[])">
+            <summary>
+            Add Delimiters parse items, and recomand to add composite delimiters first.
+            </summary>
+            <param name="name">Name of parse items</param>
+            <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
+            <param name="regexOptions">Regular Expression Options</param>
+            <param name="regExprs">Regular Expressions of parse items</param>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.AddConstantsParseItem(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.Boolean,System.String[])">
+            <summary>
+            Add Constants parse items, and recomand to add composite constants first.
+            </summary>
+            <param name="name">Name of parse items</param>
+            <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
+            <param name="regexOptions">Regular Expression Options</param>
+            <param name="isAddZeroWidthAssertion">Is auto add <c>(?=\w|$)</c> to the end of RegExprs</param>
+            <param name="regExprs">Regular Expressions of parse items</param>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.DropNull(System.String)">
+            <summary>
+            As FormatCapTextDelegate defined, deal with blank words.
+            </summary>
+            <param name="s">string to be drap</param>
+            <returns>null</returns>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.ConvertInt(System.String)">
+            <summary>
+            As FormatCapTextDelegate defined, deal with int words.
+            </summary>
+            <param name="s">string to be int</param>
+            <returns>int object</returns>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.ConvertLong(System.String)">
+            <summary>
+            As FormatCapTextDelegate defined, deal with long int words.
+            </summary>
+            <param name="s">string to be long int</param>
+            <returns>long int object</returns>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.ConvertFloat(System.String)">
+            <summary>
+            As FormatCapTextDelegate defined, deal with float words.
+            </summary>
+            <param name="s">string to be int</param>
+            <returns>float object</returns>
+        </member>
+        <member name="M:CompilerFramework.HLlangParserFramework.ConvertDouble(System.String)">
+            <summary>
+            As FormatCapTextDelegate defined, deal with double words.
+            </summary>
+            <param name="s">string to be double</param>
+            <returns>double object</returns>
+        </member>
+        <member name="T:CompilerFramework.ParserFrameException">
+            <summary>
+            Exception produeced while parsing
+            </summary>
+        </member>
+        <member name="P:CompilerFramework.ParserFrameException.Line">
+            <summary>
+            Error line
+            </summary>
+        </member>
+        <member name="P:CompilerFramework.ParserFrameException.Col">
+            <summary>
+            Error column
+            </summary>
+        </member>
+        <member name="M:CompilerFramework.ParserFrameException.#ctor(System.Int64,System.Int32,System.String)">
+            <summary>
+            Construct menthod
+            </summary>
+            <param name="lineNum">error line</param>
+            <param name="colNum">error column</param>
+            <param name="message">error message</param>
+        </member>
+    </members>
+</doc>
