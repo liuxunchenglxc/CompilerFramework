@@ -4,106 +4,113 @@
         <name>CompilerFramework</name>
     </assembly>
     <members>
-        <member name="T:CompilerFramework.ParserFramework">
+        <member name="T:CompilerFramework.LexerFramework">
             <summary>
-            Framework of Parser
+            Framework of Lexer
             </summary>
         </member>
-        <member name="P:CompilerFramework.ParserFramework.ParseGroupCount">
+        <member name="P:CompilerFramework.LexerFramework.LexGroupCount">
             <summary>
-            The number of ParseGroups
+            The number of LexGroups
             </summary>
         </member>
-        <member name="P:CompilerFramework.ParserFramework.CurrentParseGroup">
+        <member name="P:CompilerFramework.LexerFramework.CurrentLexGroup">
             <summary>
             For advanced usage, like multi-entrance processing.
             </summary>
         </member>
-        <member name="T:CompilerFramework.ParserFramework.OnParsedDelegate">
+        <member name="T:CompilerFramework.LexerFramework.OnLexedDelegate">
             <summary>
-            Single parse result receive delegate
+            Single Lex result receive delegate
             </summary>
-            <param name="parseResult">The single result of parse</param>
-            <param name="index">The order of result start from 0</param>
-            <returns>Is count this parse result</returns>
+            <param name="e">The single result of Lex</param>
+            <param name="sender">Incoming object</param>
+            <returns>Is count this Lex result</returns>
         </member>
-        <member name="E:CompilerFramework.ParserFramework.OnParsedHandler">
+        <member name="E:CompilerFramework.LexerFramework.OnLexedEventHandler">
             <summary>
-            When single parse result produced
-            </summary>
-        </member>
-        <member name="P:CompilerFramework.ParserFramework.ParseItems">
-            <summary>
-            The list of parse items, defualt use [0], others for advanced usage.
+            When single Lex result produced
             </summary>
         </member>
-        <member name="M:CompilerFramework.ParserFramework.#ctor">
+        <member name="P:CompilerFramework.LexerFramework.LexItems">
+            <summary>
+            The list of Lex items, defualt use [0], others for advanced usage.
+            </summary>
+        </member>
+        <member name="M:CompilerFramework.LexerFramework.#ctor">
             <summary>
             Default construct menthod
             </summary>
         </member>
-        <member name="M:CompilerFramework.ParserFramework.#ctor(System.Int32)">
+        <member name="M:CompilerFramework.LexerFramework.#ctor(System.Int32)">
             <summary>
             Construct menthod with multi-group processing
             </summary>
         </member>
-        <member name="M:CompilerFramework.ParserFramework.#ctor(System.Collections.Generic.List{CompilerFramework.ParseItem}[])">
+        <member name="M:CompilerFramework.LexerFramework.#ctor(System.Collections.Generic.List{CompilerFramework.LexItem}[])">
             <summary>
-            Construct menthod with parseItems
+            Construct menthod with LexItems
             </summary>
-            <param name="parseItems">Prepared parseItems</param>
+            <param name="lexItems">Prepared LexItems</param>
         </member>
-        <member name="M:CompilerFramework.ParserFramework.AddParseItem(System.String,System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.Int32)">
+        <member name="M:CompilerFramework.LexerFramework.AddLexItem(System.String,System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.Int32)">
             <summary>
-            Add a parse item, and parse with this order.
+            Add a Lex item, and Lex with this order.
             </summary>
             <param name="name">Name of item</param>
-            <param name="regExpr">Regular Expression of Parse, and automately add "^" at head</param>
+            <param name="regExpr">Regular Expression of Lex, and automately add "^" at head</param>
             <param name="regexOptions">Regular Expression Options</param>
             <param name="formatCapTextDelegate">The delegate of formatting the result of regExpr</param>
-            <param name="group">ParseGroup for advanced usage</param>
-            <exception cref="T:CompilerFramework.ParserFrameException">if parse group number is out of limite</exception>
+            <param name="group">LexGroup for advanced usage</param>
+            <exception cref="T:CompilerFramework.LexerFrameException">if Lex group number is out of limite</exception>
         </member>
-        <member name="M:CompilerFramework.ParserFramework.ParseStream(System.IO.TextReader,System.Int32)">
+        <member name="M:CompilerFramework.LexerFramework.LexStream(System.IO.TextReader,System.Int32)">
             <summary>
-            Parse multiple lines string or file from TextReader, but as single line read-parttern.
+            Lex multiple lines string or file from TextReader, but as single line read-parttern.
             If formated value equal null, then drop it.
-            By the way, please get the result from OnParsedHandler one by one.
+            By the way, please get the result from OnLexdHandler one by one.
             For example, you can write a collector for receiving results.
             </summary>
             <param name="textReader">TextReader of string or file</param>
-            <param name="group">ParseGroup for advanced usage</param>
+            <param name="group">LexGroup for advanced usage</param>
             <returns>the count of results</returns>
-            <exception cref="T:CompilerFramework.ParserFrameException">if input cannot be matched by parse items</exception>
+            <exception cref="T:CompilerFramework.LexerFrameException">if input cannot be matched by Lex items</exception>
         </member>
-        <member name="M:CompilerFramework.ParserFramework.ParseString(System.String@,CompilerFramework.ParseItem,System.Int64@)">
+        <member name="M:CompilerFramework.LexerFramework.LexString(System.String@,CompilerFramework.LexItem,System.Int64@)">
             <summary>
-            Parse a single line string, if formated value equal null, then drop it and return true.
+            Lex a single line string, if formated value equal null, then drop it and return true.
             </summary>
-            <param name="parseObject">that string will be parsed</param>
-            <param name="parseItem">parse item for parse string</param>
-            <param name="count">count of parse result</param>
+            <param name="LexObject">that string will be Lexd</param>
+            <param name="LexItem">Lex item for Lex string</param>
+            <param name="count">count of Lex result</param>
             <returns>match result</returns>
         </member>
-        <member name="T:CompilerFramework.ParseItem">
+        <member name="T:CompilerFramework.LexItem">
             <summary>
-            The item of Parser
+            The item of Lexer
             </summary>
         </member>
-        <member name="P:CompilerFramework.ParseItem.Name">
+        <member name="P:CompilerFramework.LexItem.Name">
             <summary>
-            Name of parse item
+            Name of Lex item
             </summary>
         </member>
-        <member name="P:CompilerFramework.ParseItem.FormatCapText">
+        <member name="P:CompilerFramework.LexItem.FormatCapText">
             <summary>
             The delegate of formatting the result of RegExpr
             </summary>
         </member>
-        <member name="M:CompilerFramework.ParseItem.SetRegex(System.String,System.Text.RegularExpressions.RegexOptions)">
+        <member name="M:CompilerFramework.LexItem.SetRegex(System.String,System.Text.RegularExpressions.RegexOptions)">
             <summary>
             Set the Regex
             </summary>
+        </member>
+        <member name="M:CompilerFramework.LexItem.#ctor(System.String,CompilerFramework.FormatCapTextDelegate)">
+            <summary>
+            Construct method
+            </summary>
+            <param name="name">Name of Lex Item</param>
+            <param name="formatCapText">The delegate of formatting the result of RegExpr</param>
         </member>
         <member name="T:CompilerFramework.FormatCapTextDelegate">
             <summary>
@@ -112,149 +119,167 @@
             <param name="capText">capText by RegExpr</param>
             <returns></returns>
         </member>
-        <member name="P:CompilerFramework.ParseResult.Name">
+        <member name="T:CompilerFramework.Lexeresult">
             <summary>
-            Name of parse result
+            Lex Result
             </summary>
         </member>
-        <member name="P:CompilerFramework.ParseResult.Value">
+        <member name="P:CompilerFramework.Lexeresult.Index">
             <summary>
-            Value of parse result, if you not define the type of this, its string.
+            Order of Lex result
             </summary>
         </member>
-        <member name="T:CompilerFramework.HLlangParserFramework">
+        <member name="P:CompilerFramework.Lexeresult.Name">
             <summary>
-            High level programing language parser framework
+            Name of Lex result
             </summary>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.#ctor">
+        <member name="P:CompilerFramework.Lexeresult.Value">
             <summary>
-            Construct a parser with one processing group.
+            Value of Lex result, if you not define the type of this, its string.
             </summary>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.#ctor(System.Int32)">
+        <member name="M:CompilerFramework.Lexeresult.#ctor(System.Int64,System.String,System.Object)">
+            <summary>
+            Construct method
+            </summary>
+            <param name="index">Order of Lex result</param>
+            <param name="name">Name of Lex result</param>
+            <param name="value">Value of Lex result</param>
+        </member>
+        <member name="T:CompilerFramework.HLlangLexerFramework">
+            <summary>
+            High level programing language Lexer framework
+            </summary>
+        </member>
+        <member name="M:CompilerFramework.HLlangLexerFramework.#ctor">
+            <summary>
+            Construct a Lexer with one processing group.
+            </summary>
+        </member>
+        <member name="M:CompilerFramework.HLlangLexerFramework.#ctor(System.Int32)">
             <summary>
             For advanced usage, like mutli-entrance processing
             </summary>
             <param name="groupCount">the number of group</param>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.#ctor(System.Collections.Generic.List{CompilerFramework.ParseItem}[])">
+        <member name="M:CompilerFramework.HLlangLexerFramework.#ctor(System.Collections.Generic.List{CompilerFramework.LexItem}[])">
             <summary>
-            Construct menthod with parseItems
+            Construct menthod with LexItems
             </summary>
-            <param name="parseItems">Prepared parseItems</param>
+            <param name="LexItems">Prepared LexItems</param>
         </member>
-        <member name="P:CompilerFramework.HLlangParserFramework.AddCurrentGroupNumber">
+        <member name="P:CompilerFramework.HLlangLexerFramework.CurrentAddGroupNumber">
             <summary>
-            Which ParseGroup you want to add items.
+            Which LexGroup you want to add items.
             </summary>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.AddParseItem(System.String,System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions)">
+        <member name="M:CompilerFramework.HLlangLexerFramework.AddLexItem(System.String,System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions)">
             <summary>
-            Add a parse item in group of AddCurrentGroupNumber, and parse with this order.
+            Add a Lex item in group of AddCurrentGroupNumber, and Lex with this order.
             </summary>
             <param name="name">Name of item</param>
-            <param name="regExpr">Regular Expression of Parse, and automately add "^" at head</param>
+            <param name="regExpr">Regular Expression of Lex, and automately add "^" at head</param>
             <param name="regexOptions">Regular Expression Options</param>
             <param name="formatCapTextDelegate">The delegate of formatting the result of regExpr</param>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.AddResWordsParseItem(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.String[])">
+        <member name="M:CompilerFramework.HLlangLexerFramework.AddResWords(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.String[])">
             <summary>
-            Add reserved words parse items, and recomand to do this before add indentifier parse item.
+            Add reserved words Lex items, and recomand to do this before add indentifier Lex item.
             </summary>
-            <param name="name">Name of parse items</param>
+            <param name="name">Name of Lex items</param>
             <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
             <param name="regexOptions">Regular Expression Options</param>
-            <param name="regExprs">Regular Expressions of parse items, and auto add <c>(?=\W|$)</c> to the end</param>
+            <param name="regExprs">Regular Expressions of Lex items, and auto add <c>(?=\W|$)</c> to the end</param>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.AddIdentifierParseItem(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.String)">
+        <member name="M:CompilerFramework.HLlangLexerFramework.AddIdentifier(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.String)">
             <summary>
-            Add identifier parse item, and recomand to do this after add reserved words parse item.
+            Add identifier Lex item, and recomand to do this after add reserved words Lex item.
             </summary>
-            <param name="name">Name of parse item</param>
+            <param name="name">Name of Lex item</param>
             <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
             <param name="regexOptions">Regular Expression Options</param>
-            <param name="regExpr">Regular Expression of parse item</param>
+            <param name="regExpr">Regular Expression of Lex item</param>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.AddOperatorsParseItem(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.String[])">
+        <member name="M:CompilerFramework.HLlangLexerFramework.AddOperators(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.String[])">
             <summary>
-            Add operators parse items, and recomand to add composite operators first.
+            Add operators Lex items, and recomand to add composite operators first.
             </summary>
-            <param name="name">Name of parse items</param>
+            <param name="name">Name of Lex items</param>
             <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
             <param name="regexOptions">Regular Expression Options</param>
-            <param name="regExprs">Regular Expressions of parse items</param>
+            <param name="regExprs">Regular Expressions of Lex items</param>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.AddDelimitersParseItem(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.String[])">
+        <member name="M:CompilerFramework.HLlangLexerFramework.AddDelimiters(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.String[])">
             <summary>
-            Add Delimiters parse items, and recomand to add composite delimiters first.
+            Add Delimiters Lex items, and recomand to add composite delimiters first.
             </summary>
-            <param name="name">Name of parse items</param>
+            <param name="name">Name of Lex items</param>
             <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
             <param name="regexOptions">Regular Expression Options</param>
-            <param name="regExprs">Regular Expressions of parse items</param>
+            <param name="regExprs">Regular Expressions of Lex items</param>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.AddConstantsParseItem(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.Boolean,System.String[])">
+        <member name="M:CompilerFramework.HLlangLexerFramework.AddConstants(System.String,CompilerFramework.FormatCapTextDelegate,System.Text.RegularExpressions.RegexOptions,System.Boolean,System.String[])">
             <summary>
-            Add Constants parse items, and recomand to add composite constants first.
+            Add Constants Lex items, and recomand to add composite constants first.
             </summary>
-            <param name="name">Name of parse items</param>
+            <param name="name">Name of Lex items</param>
             <param name="formatCapTextDelegate">The delegate of formatting the result of regExprs</param>
             <param name="regexOptions">Regular Expression Options</param>
             <param name="isAddZeroWidthAssertion">Is auto add <c>(?=\w|$)</c> to the end of RegExprs</param>
-            <param name="regExprs">Regular Expressions of parse items</param>
+            <param name="regExprs">Regular Expressions of Lex items</param>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.DropNull(System.String)">
+        <member name="M:CompilerFramework.HLlangLexerFramework.DropNull(System.String)">
             <summary>
             As FormatCapTextDelegate defined, deal with blank words.
             </summary>
             <param name="s">string to be drap</param>
             <returns>null</returns>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.ConvertInt(System.String)">
+        <member name="M:CompilerFramework.HLlangLexerFramework.ConvertInt(System.String)">
             <summary>
             As FormatCapTextDelegate defined, deal with int words.
             </summary>
             <param name="s">string to be int</param>
             <returns>int object</returns>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.ConvertLong(System.String)">
+        <member name="M:CompilerFramework.HLlangLexerFramework.ConvertLong(System.String)">
             <summary>
             As FormatCapTextDelegate defined, deal with long int words.
             </summary>
             <param name="s">string to be long int</param>
             <returns>long int object</returns>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.ConvertFloat(System.String)">
+        <member name="M:CompilerFramework.HLlangLexerFramework.ConvertFloat(System.String)">
             <summary>
             As FormatCapTextDelegate defined, deal with float words.
             </summary>
             <param name="s">string to be int</param>
             <returns>float object</returns>
         </member>
-        <member name="M:CompilerFramework.HLlangParserFramework.ConvertDouble(System.String)">
+        <member name="M:CompilerFramework.HLlangLexerFramework.ConvertDouble(System.String)">
             <summary>
             As FormatCapTextDelegate defined, deal with double words.
             </summary>
             <param name="s">string to be double</param>
             <returns>double object</returns>
         </member>
-        <member name="T:CompilerFramework.ParserFrameException">
+        <member name="T:CompilerFramework.LexerFrameException">
             <summary>
-            Exception produeced while parsing
+            Exception produeced while lexing
             </summary>
         </member>
-        <member name="P:CompilerFramework.ParserFrameException.Line">
+        <member name="P:CompilerFramework.LexerFrameException.Line">
             <summary>
             Error line
             </summary>
         </member>
-        <member name="P:CompilerFramework.ParserFrameException.Col">
+        <member name="P:CompilerFramework.LexerFrameException.Col">
             <summary>
             Error column
             </summary>
         </member>
-        <member name="M:CompilerFramework.ParserFrameException.#ctor(System.Int64,System.Int32,System.String)">
+        <member name="M:CompilerFramework.LexerFrameException.#ctor(System.Int64,System.Int32,System.String)">
             <summary>
             Construct menthod
             </summary>

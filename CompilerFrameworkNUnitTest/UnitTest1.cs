@@ -99,7 +99,7 @@ namespace CompileTests
     {
         HLlangLexerFramework LexerFramework;
         List<KeyValuePair<string, object>> Lexeresults;
-        public bool OnLexd(LexerFramework sender, Lexeresult e)
+        public bool OnLexed(LexerFramework sender, Lexeresult e)
         {
             switch (sender.CurrentLexGroup)
             {
@@ -154,7 +154,7 @@ namespace CompileTests
             LexerFramework.AddDelimiters("Annotation", null, 0, @".*\*/");
             LexerFramework.AddLexItem("AnnotationContext", @".+$", x => null);
             //Bound Event
-            LexerFramework.OnLexedEventHandler += OnLexd;
+            LexerFramework.OnLexedEventHandler += OnLexed;
         }
         [Test]
         public void TestAddLexItem()
