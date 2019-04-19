@@ -27,7 +27,7 @@ namespace CompilerFrameworkDemo
         // results collection
         public List<KeyValuePair<string, object>> Lexeresults { get; set; }
         // deal with different results, and contral the lex groups.
-        public bool OnLexed(LexerFramework sender, Lexeresult e)
+        public bool OnLexed(LexerFramework sender, LexerResult e)
         {
             switch (sender.CurrentLexGroup)
             {
@@ -138,7 +138,15 @@ namespace CompilerFrameworkDemo
                 {
                     i = demoClangWithBaseFramework.LexStream(new StringReader(s));
                 }
-                catch (LexerFrameException e)
+                catch (NoMatchException e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+                catch (ZeroLenghtMatchException e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+                catch (GroupNumException e)
                 {
                     Console.WriteLine(e.Message);
                 }
@@ -159,7 +167,15 @@ namespace CompilerFrameworkDemo
                     {
                         i = demoClangWithBaseFramework.LexStream(new StringReader(arg));
                     }
-                    catch (LexerFrameException e)
+                    catch (NoMatchException e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                    catch (ZeroLenghtMatchException e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                    catch (GroupNumException e)
                     {
                         Console.WriteLine(e.Message);
                     }

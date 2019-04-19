@@ -34,7 +34,7 @@ namespace CompileTests
         {
             return long.Parse(capText);
         }
-        public bool OnLexd(LexerFramework sender, Lexeresult e)
+        public bool OnLexd(LexerFramework sender, LexerResult e)
         {
             Lexeresults.Add(new KeyValuePair<string, object>(e.Name, e.Value));
             return true;
@@ -99,7 +99,7 @@ namespace CompileTests
     {
         HLlangLexerFramework LexerFramework;
         List<KeyValuePair<string, object>> Lexeresults;
-        public bool OnLexed(LexerFramework sender, Lexeresult e)
+        public bool OnLexed(LexerFramework sender, LexerResult e)
         {
             switch (sender.CurrentLexGroup)
             {

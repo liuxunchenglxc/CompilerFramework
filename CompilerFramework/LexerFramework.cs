@@ -38,16 +38,26 @@ namespace CompilerFramework
         /// </summary>
         /// <param name="e">The single result of Lex</param>
         /// <param name="sender">Incoming object</param>
-        /// <returns>Is count this Lex result</returns>
-        public delegate bool OnLexedDelegate(LexerFramework sender, Lexeresult e);
+        /// <returns>Is count this Lex result, and accept it to parse</returns>
+        public delegate bool OnLexedDelegate(LexerFramework sender, LexerResult e);
         /// <summary>
         /// When single Lex result produced
         /// </summary>
         public event OnLexedDelegate OnLexedEventHandler;
         /// <summary>
+        /// Single Lex result is accepted to parse by OnLexed
+        /// </summary>
+        /// <param name="sender">Incoming object</param>
+        /// <param name="e">The single result of Lex</param>
+        public delegate void OnAcceptedDelegate(LexerFramework sender, LexerResult e);
+        /// <summary>
+        /// When single Lex result accepted by OnLexed, and you need to choice which parser framework you need in paring.
+        /// </summary>
+        public event OnAcceptedDelegate OnAcceptedEventHandler;
+        /// <summary>
         /// The list of Lex items, defualt use [0], others for advanced usage.
         /// </summary>
-        public List<LexItem>[] LexItems { get; set; }
+        public List<LexItem>[] LexItems { get; private set; }
         /// <summary>
         /// Default construct menthod
         /// </summary>
@@ -86,7 +96,7 @@ namespace CompilerFramework
         /// <param name="regexOptions">Regular Expression Options</param>
         /// <param name="formatCapTextDelegate">The delegate of formatting the result of regExpr</param>
         /// <param name="group">LexGroup for advanced usage</param>
-        /// <exception cref="LexerFrameException">if Lex group number is out of limite</exception>
+        /// <exception cref="GroupNumException">if Lex group number is out of limite or under zero</exception>
         public void AddLexItem(string name, string regExpr, FormatCapTextDelegate formatCapTextDelegate = null, RegexOptions regexOptions = RegexOptions.None, int group = 0)
         {
             if (name.Length == 0) return;
@@ -94,7 +104,7 @@ namespace CompilerFramework
             LexItem LexItem = new LexItem(name, formatCapTextDelegate);
             if (!regExpr.StartsWith('^')) regExpr = '^' + regExpr;// reg expr must start from head of string
             LexItem.SetRegex(regExpr, regexOptions);
-            if (group >= LexGroupCount) throw new LexerFrameException(0, 0, "AddLexItem Error: out limite Lex group number: " + group);
+            if (group >= LexGroupCount || group < 0) throw new GroupNumException(group,"AddLexItem Error: illeagal Lex group number: " + group);
             LexItems[group].Add(LexItem);
         }
         /// <summary>
@@ -106,7 +116,7 @@ namespace CompilerFramework
         /// <param name="textReader">TextReader of string or file</param>
         /// <param name="group">LexGroup for advanced usage</param>
         /// <returns>the count of results</returns>
-        /// <exception cref="LexerFrameException">if input cannot be matched by Lex items</exception>
+        /// <exception cref="NoMatchException">if input cannot be matched by Lex items</exception>
         public long LexStream(TextReader textReader, int group = 0)
         {
             CurrentLexGroup = group;
@@ -121,9 +131,10 @@ namespace CompilerFramework
                 while (LexObject.Length != 0)// ensure not null
                 {
                     bool isMatch = false;
+                    int resCol = colNum - LexObject.Length + 1;
                     foreach (LexItem LexItem in LexItems[CurrentLexGroup])// match by order once
                     {
-                        if (LexString(ref LexObject, LexItem, ref sumCount))
+                        if (LexString(ref LexObject, LexItem, ref sumCount, lineNum, resCol))
                         {
                             isMatch = true;
                             break;// continuous operate
@@ -131,8 +142,7 @@ namespace CompilerFramework
                     }
                     if (!isMatch)
                     {
-                        int resCol = colNum - LexObject.Length + 1;
-                        throw new LexerFrameException(lineNum, resCol, "Lex Error: Cannot match words at line " + lineNum + " and column " + resCol + ".");
+                        throw new NoMatchException(lineNum, resCol, "Lex Error: Cannot match words at line " + lineNum + " and column " + resCol + ".");
                     }
                 }
             }
@@ -144,22 +154,29 @@ namespace CompilerFramework
         /// <param name="LexObject">that string will be Lexd</param>
         /// <param name="LexItem">Lex item for Lex string</param>
         /// <param name="count">count of Lex result</param>
+        /// <param name="line">line number</param>
+        /// <param name="col">column number</param>
         /// <returns>match result</returns>
-        private bool LexString(ref string LexObject, LexItem LexItem, ref long count)
+        /// <exception cref="ZeroLenghtMatchException">if match zero lenght string</exception>
+        private bool LexString(ref string LexObject, LexItem LexItem, ref long count, long line, int col)
         {
             Match match = LexItem.Regex.Match(LexObject);// match reg expr
             if (!match.Success) return false;
             string result = match.Value;
-            if (result.Length == 0) throw new LexerFrameException(0, 0, "Lex Error: Zero Length String Matched, " +
-                "indicating end-less loop, by Name:" + LexItem.Name + " RegExpr:" + LexItem.FormatCapText);
+            if (result.Length == 0) throw new ZeroLenghtMatchException(LexItem.Name, LexItem.Regex.ToString(), "Lex Error: Zero Length String Matched, " +
+                "indicating end-less loop, by Name:" + LexItem.Name + " RegExpr:" + LexItem.Regex.ToString());
             object value;
             if (LexItem.FormatCapText == null) value = result;
             else value = LexItem.FormatCapText(result);// format the result
             if (value != null)
             {
-                Lexeresult Lexeresult = new Lexeresult(count, LexItem.Name, value); // save the result
+                LexerResult Lexeresult = new LexerResult(count, LexItem.Name, value, line, col); // save the result
                 // call event to notice user to receive it
-                if (OnLexedEventHandler(this, Lexeresult)) count++; // must be one result for the start with "^" parttern
+                if (OnLexedEventHandler(this, Lexeresult))
+                {
+                    count++; // must be one result for the start with "^" parttern
+                    OnAcceptedEventHandler(this, Lexeresult);// to parse it.
+                }
             }
             int restLenght = LexObject.Length - match.Length;
             LexObject = LexObject.Substring(match.Length, restLenght);// for continuous operate
@@ -210,7 +227,7 @@ namespace CompilerFramework
     /// Lex Result
     /// </summary>
     [Serializable]
-    public struct Lexeresult
+    public struct LexerResult
     {
         /// <summary>
         /// Order of Lex result
@@ -225,16 +242,24 @@ namespace CompilerFramework
         /// </summary>
         public object Value { get; }
         /// <summary>
+        /// position of item
+        /// </summary>
+        public Position Position{get;}
+
+        /// <summary>
         /// Construct method
         /// </summary>
         /// <param name="index">Order of Lex result</param>
         /// <param name="name">Name of Lex result</param>
         /// <param name="value">Value of Lex result</param>
-        public Lexeresult(long index, string name, object value)
+        /// <param name="col">column number</param>
+        /// <param name="line">line number</param>
+        public LexerResult(long index, string name, object value, long line, int col)
         {
             Index = index;
             Name = name;
             Value = value;
+            Position = new Position(line, col);
         }
     }
     /// <summary>
@@ -374,28 +399,96 @@ namespace CompilerFramework
 
     }
     /// <summary>
-    /// Exception produeced while lexing
+    /// Exception produeced while cannot match.
     /// </summary>
-    public class LexerFrameException : Exception
+    public class NoMatchException : Exception
     {
         /// <summary>
         /// Error line
         /// </summary>
-        public long Line { get; set; }
+        public long Line { get; }
         /// <summary>
         /// Error column
         /// </summary>
-        public int Col { get; set; }
+        public int Col { get; }
         /// <summary>
         /// Construct menthod
         /// </summary>
         /// <param name="lineNum">error line</param>
         /// <param name="colNum">error column</param>
         /// <param name="message">error message</param>
-        public LexerFrameException(long lineNum, int colNum, string message) : base(message)
+        public NoMatchException(long lineNum, int colNum, string message) : base(message)
         {
             Line = lineNum;
             Col = colNum;
         }
+    }
+    /// <summary>
+    /// Exception produeced while group num is illeagal.
+    /// </summary>
+    public class GroupNumException : Exception
+    {
+        /// <summary>
+        /// Error num
+        /// </summary>
+        public long Num { get; }
+        /// <summary>
+        /// Construct menthod
+        /// </summary>
+        /// <param name="num">error group num</param>
+        /// <param name="message">error message</param>
+        public GroupNumException(int num, string message) : base(message)
+        {
+            Num = num;
+        }
+    }
+    /// <summary>
+    /// Exception produeced while match zero width
+    /// </summary>
+    public class ZeroLenghtMatchException : Exception
+    {
+        /// <summary>
+        /// name of LexItem
+        /// </summary>
+        public string Name { get; }
+        /// <summary>
+        /// regular expression with danger
+        /// </summary>
+        public string RegExpr { get; }
+        /// <summary>
+        /// Construct menthod
+        /// </summary>
+        /// <param name="name">name of LexItem</param>
+        /// <param name="regExpr">regular expression with danger</param>
+        /// <param name="message">error message</param>
+        public ZeroLenghtMatchException(string name, string regExpr, string message) : base(message)
+        {
+            Name = name;
+            RegExpr = regExpr;
+        }
+    }
+    /// <summary>
+    /// Position of unit
+    /// </summary>
+    public struct Position
+    {
+        /// <summary>
+        /// Position of unit
+        /// </summary>
+        /// <param name="line">line number</param>
+        /// <param name="col">column number</param>
+        public Position(long line,int col)
+        {
+            Line = line;
+            Col = col;
+        }
+        /// <summary>
+        /// line number
+        /// </summary>
+        public long Line { get; }
+        /// <summary>
+        /// column number
+        /// </summary>
+        public int Col { get; }
     }
 }
