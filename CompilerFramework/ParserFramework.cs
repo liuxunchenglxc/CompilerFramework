@@ -44,12 +44,13 @@ namespace CompilerFramework
         /// <param name="lexerResult">The Result of Lexer</param>
         public void ParseLexUnit(LexerResult lexerResult)
         {
+            if (lexerResult.Index != index) throw new Exception("index error");
             //transfer to parse unit
             ParseUnit parseUnit = new ParseUnit(lexerResult.Name, null, lexerResult.Position, lexerResult.Value, null);
             //to parse it
             Parse(parseUnit);
         }
-        public void ParseLexUnitBegin()
+        //public void ParseLexUnitBegin()
         #endregion
     }
     public struct ParseUnit
