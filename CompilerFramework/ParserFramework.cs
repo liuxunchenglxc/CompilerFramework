@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CompilerFramework
 {
@@ -24,6 +25,10 @@ namespace CompilerFramework
     /// </summary>
     class ParserFramework
     {
+        /// <summary>
+        /// For the async multi-thread parsing order chacking.
+        /// </summary>
+        protected ParseDoor door = new ParseDoor();
         /// <summary>
         /// For the parsing order chacking.
         /// </summary>
@@ -44,13 +49,50 @@ namespace CompilerFramework
         /// <param name="lexerResult">The Result of Lexer</param>
         public void ParseLexUnit(LexerResult lexerResult)
         {
-            if (lexerResult.Index != index) throw new Exception("index error");
+            //check the order
+            if (lexerResult.Index != index) throw new ParseIndexException(index, lexerResult.Index,
+                "Index Error: Index should be " + index + " instead of " + lexerResult.Index);
             //transfer to parse unit
             ParseUnit parseUnit = new ParseUnit(lexerResult.Name, null, lexerResult.Position, lexerResult.Value, null);
             //to parse it
+            index++;// move to next for sync
+            door.GetIn();// move to next for async, but no use in here.
             Parse(parseUnit);
         }
-        //public void ParseLexUnitBegin()
+        /// <summary>
+        /// Receive LexerResult and Parse asynchronously, order of Index will be checked.
+        /// </summary>
+        /// <param name="lexerResult">The Result of Lexer</param>
+        public async Task ParseLexUnitAsync(LexerResult lexerResult)
+        {
+            //check the order
+            if (lexerResult.Index != index) throw new ParseIndexException(index, lexerResult.Index,
+                "Index Error: Index should be " + index + " instead of " + lexerResult.Index);
+            //transfer to parse unit
+            ParseUnit parseUnit = new ParseUnit(lexerResult.Name, null, lexerResult.Position, lexerResult.Value, null);
+            //to parse it
+            index++;// move to next for sync
+            await JoinParse(parseUnit, lexerResult.Index);
+        }
+        protected Task JoinParse(ParseUnit parseUnit, long index)
+        {
+            Task task = new Task(new Action<object>(x => Parse((ParseUnit)x)), parseUnit);
+            while (door.Index < index) { }
+            if (door.Index == index)
+            {
+                lock (door)
+                {
+                    door.GetIn();// move to next for async
+                    task.RunSynchronously();// run it exclusively
+                }
+            }
+            else
+            {
+                throw new AsyncIndexException(index,door.Index,
+                "Async Index Error: Async Index should be " + index + " instead of " + door.Index+". Check your code please.");
+            }
+            return task;
+        }
         #endregion
     }
     public struct ParseUnit
@@ -91,5 +133,69 @@ namespace CompilerFramework
         /// reserved place for advanced usage
         /// </summary>
         public object Property { get; }
+    }
+    /// <summary>
+    /// Exception when index is not match
+    /// </summary>
+    public class ParseIndexException:Exception
+    {
+        /// <summary>
+        /// Exception when index is not match
+        /// </summary>
+        /// <param name="corIndex">index should be</param>
+        /// <param name="errIndex">current index</param>
+        /// <param name="message">message of exception</param>
+        public ParseIndexException(long corIndex,long errIndex,string message) : base(message)
+        {
+            CorIndex = corIndex;
+            ErrIndex = errIndex;
+        }
+        /// <summary>
+        /// index should be
+        /// </summary>
+        public long CorIndex { get; }
+        /// <summary>
+        /// current index
+        /// </summary>
+        public long ErrIndex { get; }
+    }
+    /// <summary>
+    /// For async multi-thread operation to lock it
+    /// </summary>
+    internal class ParseDoor
+    {
+        /// <summary>
+        /// which index should to lock next
+        /// </summary>
+        internal long Index { get; private set; } = 0;
+        /// <summary>
+        /// get in door and lock this object, lock operation should be done by you outside.
+        /// </summary>
+        internal void GetIn() => Index++;
+    }
+    /// <summary>
+    /// Exception when async index is bigger than current index, generally this will not happen if no coding error.
+    /// </summary>
+    public class AsyncIndexException : Exception
+    {
+        /// <summary>
+        /// Exception when async index is bigger than current index, generally this will not happen if no coding error.
+        /// </summary>
+        /// <param name="curIndex">current index</param>
+        /// <param name="errIndex">error async index</param>
+        /// <param name="message">message of exception</param>
+        public AsyncIndexException(long curIndex, long errIndex, string message) : base(message)
+        {
+            CurIndex = curIndex;
+            ErrIndex = errIndex;
+        }
+        /// <summary>
+        /// current index
+        /// </summary>
+        public long CurIndex { get; }
+        /// <summary>
+        /// error async index
+        /// </summary>
+        public long ErrIndex { get; }
     }
 }
