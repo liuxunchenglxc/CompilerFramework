@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CompilerFramework
+namespace CompilerFramework.Parser
 {
     /// <summary>
     /// The very base framework of parsing, provide very base methods for all kind of parsing.

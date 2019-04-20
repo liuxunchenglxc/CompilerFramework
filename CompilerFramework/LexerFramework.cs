@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace CompilerFramework
+namespace CompilerFramework.Lexer
 {
     /// <summary>
     /// Framework of Lexer
