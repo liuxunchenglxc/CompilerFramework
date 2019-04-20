@@ -55,6 +55,16 @@ namespace CompilerFramework.Lexer
         /// </summary>
         public event OnAcceptedDelegate OnAcceptedEventHandler;
         /// <summary>
+        /// All lex is done.
+        /// </summary>
+        /// <param name="sender">Incoming object</param>
+        /// <param name="e">count of accepted results</param>
+        public delegate void OnFinishedDelegate(LexerFramework sender, long e);
+        /// <summary>
+        /// When all lex is done.
+        /// </summary>
+        public event OnFinishedDelegate OnFinishedEventHandler;
+        /// <summary>
         /// The list of Lex items, defualt use [0], others for advanced usage.
         /// </summary>
         public List<LexItem>[] LexItems { get; private set; }
@@ -146,6 +156,7 @@ namespace CompilerFramework.Lexer
                     }
                 }
             }
+            OnFinishedEventHandler(this, sumCount);
             return sumCount;
         }
         /// <summary>
