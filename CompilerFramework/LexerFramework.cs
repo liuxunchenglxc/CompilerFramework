@@ -114,7 +114,7 @@ namespace CompilerFramework.Lexer
             LexItem LexItem = new LexItem(name, formatCapTextDelegate);
             if (!regExpr.StartsWith('^')) regExpr = '^' + regExpr;// reg expr must start from head of string
             LexItem.SetRegex(regExpr, regexOptions);
-            if (group >= LexGroupCount || group < 0) throw new GroupNumException(group,"AddLexItem Error: illeagal Lex group number: " + group);
+            if (group >= LexGroupCount || group < 0) throw new GroupNumException(group, "AddLexItem Error: illeagal Lex group number: " + group);
             LexItems[group].Add(LexItem);
         }
         /// <summary>
@@ -156,7 +156,7 @@ namespace CompilerFramework.Lexer
                     }
                 }
             }
-            OnFinishedEventHandler(this, sumCount);
+            OnFinishedEventHandler?.Invoke(this, sumCount);
             return sumCount;
         }
         /// <summary>
@@ -183,10 +183,10 @@ namespace CompilerFramework.Lexer
             {
                 LexerResult Lexeresult = new LexerResult(count, LexItem.Name, value, line, col); // save the result
                 // call event to notice user to receive it
-                if (OnLexedEventHandler(this, Lexeresult))
+                if (OnLexedEventHandler?.Invoke(this, Lexeresult) == true)
                 {
                     count++; // must be one result for the start with "^" parttern
-                    OnAcceptedEventHandler(this, Lexeresult);// to parse it.
+                    OnAcceptedEventHandler?.Invoke(this, Lexeresult);// to parse it.
                 }
             }
             int restLenght = LexObject.Length - match.Length;
@@ -255,7 +255,7 @@ namespace CompilerFramework.Lexer
         /// <summary>
         /// position of item
         /// </summary>
-        public Position Position{get;}
+        public Position Position { get; }
 
         /// <summary>
         /// Construct method
@@ -488,7 +488,7 @@ namespace CompilerFramework.Lexer
         /// </summary>
         /// <param name="line">line number</param>
         /// <param name="col">column number</param>
-        public Position(long line,int col)
+        public Position(long line, int col)
         {
             Line = line;
             Col = col;

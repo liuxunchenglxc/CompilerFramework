@@ -96,6 +96,9 @@ namespace CompilerFramework.Parser
         }
         #endregion
     }
+    /// <summary>
+    /// Unit of Parse, such as phrase.
+    /// </summary>
     public struct ParseUnit
     {
         /// <summary>

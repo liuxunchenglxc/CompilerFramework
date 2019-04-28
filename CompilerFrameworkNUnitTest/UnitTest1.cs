@@ -64,15 +64,15 @@ namespace CompileTests
         public void TestLexStream()
         {
             long i = LexerFramework.LexStream(new StringReader("int"));
-            Assert.AreEqual(i, 1);
+            Assert.AreEqual(1, i);
             i = LexerFramework.LexStream(new StringReader("  "));
-            Assert.AreEqual(i, 0);
+            Assert.AreEqual(0, i);
             i = LexerFramework.LexStream(new StringReader("a"));
-            Assert.AreEqual(i, 1);
+            Assert.AreEqual(1, i);
             i = LexerFramework.LexStream(new StringReader("a_1"));
-            Assert.AreEqual(i, 1);
+            Assert.AreEqual(1, i);
             i = LexerFramework.LexStream(new StringReader("123"));
-            Assert.AreEqual(i, 1);
+            Assert.AreEqual(1, i);
         }
         /// <summary>
         /// test: int a = 1;
@@ -81,16 +81,18 @@ namespace CompileTests
         public void Test1()
         {
             long i = LexerFramework.LexStream(new StringReader("int a = 1;"));
-            Assert.AreEqual(i, 5);
-            List<KeyValuePair<string, object>> test = new List<KeyValuePair<string, object>>();
-            test.Add(new KeyValuePair<string, object>("Type", "int"));
-            test.Add(new KeyValuePair<string, object>("Identifier", "a"));
-            test.Add(new KeyValuePair<string, object>("Operator", "="));
-            test.Add(new KeyValuePair<string, object>("Digit", 1));
-            test.Add(new KeyValuePair<string, object>("Delimiter", ";"));
+            Assert.AreEqual(5, i);
+            List<KeyValuePair<string, object>> test = new List<KeyValuePair<string, object>>
+            {
+                new KeyValuePair<string, object>("Type", "int"),
+                new KeyValuePair<string, object>("Identifier", "a"),
+                new KeyValuePair<string, object>("Operator", "="),
+                new KeyValuePair<string, object>("Digit", 1),
+                new KeyValuePair<string, object>("Delimiter", ";")
+            };
             Assert.AreEqual(test, Lexeresults);
             i = LexerFramework.LexStream(new StringReader("int a = 1;\r\n"));
-            Assert.AreEqual(i, 5);
+            Assert.AreEqual(5, i);
             i = LexerFramework.LexStream(new StringReader("int a = 1;\r\n  int a = 1;"));
             Assert.AreEqual(i, 10);
         }
@@ -125,6 +127,11 @@ namespace CompileTests
                 default:
                     return false;
             }
+        }
+
+        public void OnFinished(LexerFramework sender, long e)
+        {
+            Assert.AreEqual(5, e);
         }
 
         [SetUp]
@@ -165,15 +172,15 @@ namespace CompileTests
         public void TestLexStream()
         {
             long i = LexerFramework.LexStream(new StringReader("int"));
-            Assert.AreEqual(i, 1);
+            Assert.AreEqual(1, i);
             i = LexerFramework.LexStream(new StringReader("  "));
-            Assert.AreEqual(i, 0);
+            Assert.AreEqual(0, i);
             i = LexerFramework.LexStream(new StringReader("a"));
-            Assert.AreEqual(i, 1);
+            Assert.AreEqual(1, i);
             i = LexerFramework.LexStream(new StringReader("a_1"));
-            Assert.AreEqual(i, 1);
+            Assert.AreEqual(1, i);
             i = LexerFramework.LexStream(new StringReader("123"));
-            Assert.AreEqual(i, 1);
+            Assert.AreEqual(1, i);
         }
         /// <summary>
         /// test: int a = 1;
@@ -182,50 +189,106 @@ namespace CompileTests
         public void Test1()
         {
             long i = LexerFramework.LexStream(new StringReader("int a = 1;"));
-            Assert.AreEqual(i, 5);
-            List<KeyValuePair<string, object>> test = new List<KeyValuePair<string, object>>();
-            test.Add(new KeyValuePair<string, object>("Type", "int"));
-            test.Add(new KeyValuePair<string, object>("Identifier", "a"));
-            test.Add(new KeyValuePair<string, object>("Operator", "="));
-            test.Add(new KeyValuePair<string, object>("Digit", 1));
-            test.Add(new KeyValuePair<string, object>("Delimiter", ";"));
+            Assert.AreEqual(5, i);
+            List<KeyValuePair<string, object>> test = new List<KeyValuePair<string, object>>
+            {
+                new KeyValuePair<string, object>("Type", "int"),
+                new KeyValuePair<string, object>("Identifier", "a"),
+                new KeyValuePair<string, object>("Operator", "="),
+                new KeyValuePair<string, object>("Digit", 1),
+                new KeyValuePair<string, object>("Delimiter", ";")
+            };
             Assert.AreEqual(test, Lexeresults);
             i = LexerFramework.LexStream(new StringReader("int a = 1;\r\n"));
-            Assert.AreEqual(i, 5);
+            Assert.AreEqual(5, i);
             i = LexerFramework.LexStream(new StringReader("int a = 1;\r\n  int a = 1;"));
-            Assert.AreEqual(i, 10);
+            Assert.AreEqual(10, i);
+            i = LexerFramework.LexStream(new StringReader("double a = 1.123;\r\n"));
+            Assert.AreEqual(5, i);
+            LexerFramework.OnFinishedEventHandler += OnFinished;
+            i = LexerFramework.LexStream(new StringReader("bool a = true;\r\n"));
+            Assert.AreEqual(5, i);
         }
         [Test]
         public void TestSingleLineAnnotation()
         {
             long i = LexerFramework.LexStream(new StringReader("int a = 1;// this is single line annotation"));
-            Assert.AreEqual(i, 5);
-            List<KeyValuePair<string, object>> test = new List<KeyValuePair<string, object>>();
-            test.Add(new KeyValuePair<string, object>("Type", "int"));
-            test.Add(new KeyValuePair<string, object>("Identifier", "a"));
-            test.Add(new KeyValuePair<string, object>("Operator", "="));
-            test.Add(new KeyValuePair<string, object>("Digit", 1));
-            test.Add(new KeyValuePair<string, object>("Delimiter", ";"));
+            Assert.AreEqual(5, i);
+            List<KeyValuePair<string, object>> test = new List<KeyValuePair<string, object>>
+            {
+                new KeyValuePair<string, object>("Type", "int"),
+                new KeyValuePair<string, object>("Identifier", "a"),
+                new KeyValuePair<string, object>("Operator", "="),
+                new KeyValuePair<string, object>("Digit", 1),
+                new KeyValuePair<string, object>("Delimiter", ";")
+            };
             Assert.AreEqual(test, Lexeresults);
             i = LexerFramework.LexStream(new StringReader("int a = 1;// this is single line annotation\r\n" +
                 "int a = 1;"));
-            Assert.AreEqual(i, 10);
+            Assert.AreEqual(10, i);
         }
         [Test]
         public void TestMultiLineAnnotation()
         {
             long i = LexerFramework.LexStream(new StringReader("int a = 1;/* this is \r\n multiple line \r\n annotation */"));
-            Assert.AreEqual(i, 5);
-            List<KeyValuePair<string, object>> test = new List<KeyValuePair<string, object>>();
-            test.Add(new KeyValuePair<string, object>("Type", "int"));
-            test.Add(new KeyValuePair<string, object>("Identifier", "a"));
-            test.Add(new KeyValuePair<string, object>("Operator", "="));
-            test.Add(new KeyValuePair<string, object>("Digit", 1));
-            test.Add(new KeyValuePair<string, object>("Delimiter", ";"));
+            Assert.AreEqual(5, i);
+            List<KeyValuePair<string, object>> test = new List<KeyValuePair<string, object>>
+            {
+                new KeyValuePair<string, object>("Type", "int"),
+                new KeyValuePair<string, object>("Identifier", "a"),
+                new KeyValuePair<string, object>("Operator", "="),
+                new KeyValuePair<string, object>("Digit", 1),
+                new KeyValuePair<string, object>("Delimiter", ";")
+            };
             Assert.AreEqual(test, Lexeresults);
             i = LexerFramework.LexStream(new StringReader("int a = 1;/* this is \r\n multiple line \r\n annotation */" +
                 "int a = 1;"));
-            Assert.AreEqual(i, 10);
+            Assert.AreEqual(10, i);
+        }
+        [Test]
+        public void TestZeroLenght()
+        {
+            try
+            {
+                LexerFramework.CurrentAddGroupNumber = 0;
+                LexerFramework.AddLexItem("Zero", "|");
+                LexerFramework.LexStream(new StringReader("@@@@@"));
+                Assert.Fail();
+            }
+            catch(ZeroLenghtMatchException e)
+            {
+                Assert.AreEqual("Zero", e.Name);
+                Assert.AreEqual("^|", e.RegExpr);
+            }
+        }
+        [Test]
+        public void TestNotFound()
+        {
+            try
+            {
+                LexerFramework.CurrentAddGroupNumber = 0;
+                LexerFramework.LexStream(new StringReader("@@@@@"));
+                Assert.Fail();
+            }
+            catch (NoMatchException e)
+            {
+                Assert.AreEqual(1, e.Col);
+                Assert.AreEqual(1, e.Line);
+            }
+        }
+        [Test]
+        public void TestGroupNum()
+        {
+            try
+            {
+                LexerFramework.CurrentAddGroupNumber = 4;
+                LexerFramework.AddLexItem("Zero", "|");
+                Assert.Fail();
+            }
+            catch (GroupNumException e)
+            {
+                Assert.AreEqual(4, e.Num);
+            }
         }
     }
 }
