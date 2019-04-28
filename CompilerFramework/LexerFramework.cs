@@ -221,8 +221,10 @@ namespace CompilerFramework.Lexer
         /// </summary>
         /// <param name="name">Name of Lex Item</param>
         /// <param name="formatCapText">The delegate of formatting the result of RegExpr</param>
+        /// <exception cref="IlleagalNameException">if name start with '@'</exception>
         public LexItem(string name, FormatCapTextDelegate formatCapText)
         {
+            if (Regex.Match(name, "^@.+").Success) throw new IlleagalNameException(name, "Illeagal Name: " + name + ". Name cannot start with '@'.");
             Name = name;
             FormatCapText = formatCapText;
             Regex = null;
@@ -265,7 +267,7 @@ namespace CompilerFramework.Lexer
         /// <param name="value">Value of Lex result</param>
         /// <param name="col">column number</param>
         /// <param name="line">line number</param>
-        public LexerResult(long index, string name, object value, long line, int col)
+        internal LexerResult(long index, string name, object value, long line, int col)
         {
             Index = index;
             Name = name;
@@ -432,6 +434,26 @@ namespace CompilerFramework.Lexer
         {
             Line = lineNum;
             Col = colNum;
+        }
+    }
+    /// <summary>
+    /// Name of Item is illeagal
+    /// </summary>
+    public class IlleagalNameException : Exception
+    {
+        /// <summary>
+        /// Error name
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// Construct menthod
+        /// </summary>
+        /// <param name="name">error name</param>
+        /// <param name="message">error message</param>
+        public IlleagalNameException(string name, string message) : base(message)
+        {
+            Name = name;
         }
     }
     /// <summary>

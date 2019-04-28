@@ -13,11 +13,10 @@
 
 //    You should have received a copy of the GNU General Public License
 //    along with this program.If not, see<https://www.gnu.org/licenses/>.
+using CompilerFramework.Lexer;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using CompilerFramework.Lexer;
 
 namespace CompilerFramework.Parser
 {
@@ -38,6 +37,14 @@ namespace CompilerFramework.Parser
         /// stack for PDA
         /// </summary>
         protected Stack<object> stack;
+        /// <summary>
+        /// collection of productions
+        /// </summary>
+        public List<Production> Productions { get; private set; }
+        /// <summary>
+        /// Semant Delegate Table for string convert to delegate.
+        /// </summary>
+        public Dictionary<string, SemantDelegate> SemantDelegateTable = new Dictionary<string, SemantDelegate>();
         /// <summary>
         /// parsing entrance methods
         /// </summary>
@@ -89,13 +96,105 @@ namespace CompilerFramework.Parser
             }
             else
             {
-                throw new AsyncIndexException(index,door.Index,
-                "Async Index Error: Async Index should be " + index + " instead of " + door.Index+". Check your code please.");
+                throw new AsyncIndexException(index, door.Index,
+                "Async Index Error: Async Index should be " + index + " instead of " + door.Index + ". Check your code please.");
             }
             return task;
         }
         #endregion
+        #region receive productions
+        /// <summary>
+        /// the most direct way to add production
+        /// </summary>
+        /// <param name="production">production</param>
+        public void AddProduction(Production production) => Productions.Add(production);
+        /// <summary>
+        /// part of indirect way of add production, add the SemantDelegate to table.
+        /// </summary>
+        /// <param name="name">name of delegate method</param>
+        /// <param name="semantDelegate">the delegate method</param>
+        /// <exception cref="ProductSentenceException">if ProductSentence is illeagal</exception>
+        public void AddSemantDelegateTable(string name, SemantDelegate semantDelegate) => SemantDelegateTable.Add(name, semantDelegate);
+        /// <summary>
+        /// indirect way of add production by string, format string as:
+        /// Pre ->|:|| Suf0 Suf1 ... [@SemantDelegateName[$attr]]
+        /// like this:
+        /// E -> F G
+        /// or like this:
+        /// E -> E add E @SemantAdd
+        /// or like this:
+        /// E | E opt E @SementOpt
+        /// or like this:
+        /// E : Delimiter E Delimiter @Semant
+        /// or with attr in string (attr will be string type), just add $attr directly behand @SemantDelegateName
+        /// E -> E F @Semant$deal
+        /// </summary>
+        /// <param name="productSentence">formated string</param>
+        public void AddProductionByString(string productSentence)
+        {
+            string[] vs = productSentence.Split(" ");
+            if (vs[1] != "->" && vs[1] != "|" && vs[1] != ":") throw new ProductSentenceException(productSentence,
+                    "ProductSentence Error: sentence \"" + productSentence + "\" is illeagal.");
+            int i = vs.Length - 1;
+            SemantDelegate semantDelegate = null;
+            object attr = null;
+            if (vs[i].StartsWith('@'))
+            {
+                string[] s = vs[i].TrimStart('@').Split("$");
+                semantDelegate = SemantDelegateTable[s[0]];
+                attr = s[1];
+                i--;
+            }
+            string[] sufs = new string[i];
+            for (int j = 2; j <= i; j++){
+                sufs[j - 2] = vs[j];
+            }
+            Production production = new Production(vs[0], sufs, semantDelegate, attr);
+            AddProduction(production);
+        }
+        /// <summary>
+        /// indirect way of add productions by strings, format string as:
+        /// Pre ->|:|| Suf0 Suf1 ... [@SemantDelegateName[$attr]]
+        /// like this:
+        /// E -> F G
+        /// or like this:
+        /// E -> E add E @SemantAdd
+        /// or like this:
+        /// E | E opt E @SementOpt
+        /// or like this:
+        /// E : Delimiter E Delimiter @Semant
+        /// or with attr in string (attr will be string type), just add $attr directly behand @SemantDelegateName
+        /// E -> E F @Semant$deal
+        /// </summary>
+        /// <param name="productSentences">formated strings</param>
+        public void AddProductionsByStrings(params string[] productSentences) { foreach (string s in productSentences) AddProductionByString(s); }
+        #endregion
     }
+    /// <summary>
+    /// Exception produeced while ProductSentence is illeagal.
+    /// </summary>
+    public class ProductSentenceException : Exception
+    {
+        /// <summary>
+        /// Error Sentence
+        /// </summary>
+        public string Sentence { get; }
+        /// <summary>
+        /// Construct menthod
+        /// </summary>
+        /// <param name="sentence">error sentence</param>
+        /// <param name="message">error message</param>
+        public ProductSentenceException(string sentence, string message) : base(message)
+        {
+            Sentence = sentence;
+        }
+    }
+    /// <summary>
+    /// Semant delegate and return a value for next step.
+    /// </summary>
+    /// <param name="parseUnits"></param>
+    /// <returns></returns>
+    public delegate object SemantDelegate(ParseUnit[] parseUnits);
     /// <summary>
     /// Unit of Parse, such as phrase.
     /// </summary>
@@ -109,7 +208,7 @@ namespace CompilerFramework.Parser
         /// <param name="value">reserved place for advanced usage</param>
         /// <param name="property">reserved place for advanced usage</param>
         /// <param name="position">position of unit</param>
-        public ParseUnit(string name, ParseUnit[] parseUnits, Position position, object value, object property)
+        internal ParseUnit(string name, ParseUnit[] parseUnits, Position position, object value, object property)
         {
             Name = name;
             ParseUnits = parseUnits;
@@ -120,15 +219,15 @@ namespace CompilerFramework.Parser
         /// <summary>
         /// name of this
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; }
         /// <summary>
         /// the unit contained, as son nodes
         /// </summary>
-        public ParseUnit[] ParseUnits { get; private set; }
+        public ParseUnit[] ParseUnits { get; }
         /// <summary>
         /// reserved place for advanced usage
         /// </summary>
-        public object Value { get; private set; }
+        public object Value { get; }
         /// <summary>
         /// position of unit
         /// </summary>
@@ -141,7 +240,7 @@ namespace CompilerFramework.Parser
     /// <summary>
     /// Exception when index is not match
     /// </summary>
-    public class ParseIndexException:Exception
+    public class ParseIndexException : Exception
     {
         /// <summary>
         /// Exception when index is not match
@@ -149,7 +248,7 @@ namespace CompilerFramework.Parser
         /// <param name="corIndex">index should be</param>
         /// <param name="errIndex">current index</param>
         /// <param name="message">message of exception</param>
-        public ParseIndexException(long corIndex,long errIndex,string message) : base(message)
+        public ParseIndexException(long corIndex, long errIndex, string message) : base(message)
         {
             CorIndex = corIndex;
             ErrIndex = errIndex;
@@ -201,5 +300,41 @@ namespace CompilerFramework.Parser
         /// error async index
         /// </summary>
         public long ErrIndex { get; }
+    }
+    /// <summary>
+    /// the production of grammar
+    /// </summary>
+    public struct Production
+    {
+        /// <summary>
+        /// antecedent
+        /// </summary>
+        public string Pre { get; }
+        /// <summary>
+        /// seccedents
+        /// </summary>
+        public string[] Sufs { get; }
+        /// <summary>
+        /// delegate for semanting
+        /// </summary>
+        public SemantDelegate SemantDelegate { get; }
+        /// <summary>
+        /// attr for advansing usage
+        /// </summary>
+        public object Attr { get; }
+        /// <summary>
+        /// the production of grammar
+        /// </summary>
+        /// <param name="pre">antecedent</param>
+        /// <param name="sufs">seccedents</param>
+        /// <param name="semantDelegate">delegate for semanting</param>
+        /// <param name="attr">attr for advansing usage</param>
+        public Production(string pre, string[] sufs, SemantDelegate semantDelegate, object attr)
+        {
+            Pre = pre;
+            Sufs = sufs;
+            SemantDelegate = semantDelegate;
+            Attr = attr;
+        }
     }
 }

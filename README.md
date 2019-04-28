@@ -28,6 +28,7 @@
   1. 匹配组号超出预定组号，报告组号，异常类为`GroupNumException`
   2. 匹配失败，报告失败位置，异常类为`NoMatchException`
   3. 零长度匹配，会引起死循环，报告具体的`LexItem`内容，异常类为`ZeroLenghtMatchException`
+  4. 词法项名称非法，比如以`@`开头，报告具体的名称，异常类为`IlleagalNameException`
 - **词法分析最小单位**：结构体`LexItem`
   1. 名称：便于语法分析与分类
   2. 正则表达式：匹配法则，自动在表达式最前方添加`^`
