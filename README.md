@@ -83,3 +83,30 @@
 - **语法分析准备阶段异常**：
   1. （同步与异步）传入的词法分析结果不是按照顺序的。异步方法要求顺序调用，以保证不缺补漏。报告传入的词法分析结果的`Index`与应当传入的`Index`项，异常类为`ParseIndexException`。
   2. （异步）异步机制出现异常，应当进入语法分析的项没有进入，此异常一般情况下不应该发生，除非有代码逻辑错误。报告没有传入项的`Index`与欲接收的`Index`,异常类为`AsyncIndexException`。
+- **语法分析产生式**：
+  1. **结构体**：`Production`
+     - Pre：`string`类型的前件，会作为新生成的语法分析单位的名称。
+     - Sufs：`string[]`类型的后件，会匹配相应名称的语法单位。
+     - SemantDelegate：语义分析委托，用于语义分析。
+     - Attr：`object`类型的附加属性用于高级用途。
+  2. **基本添加方法**：`AddProduction`，直接将`Production`结构体添入语法分析框架。
+  3. **文本添加方法**：`AddProductionByString`，根据格式
+
+      ``` c
+      Pre -> Suf_0 Suf_1 ... [@SemantDelegateName[$attr]]
+      Pre | Suf_0 Suf_1 ... [@SemantDelegateName[$attr]]
+      Pre : Suf_0 Suf_1 ... [@SemantDelegateName[$attr]]
+      ```
+
+      添加字符串实参，比如`E -> F H @delegateName$attrString`。
+      如果需要添加语义分析委托，请先调用`AddSemantDelegateTable`
+      添加语义分析委托名称的映射。如果要使用`attr`，必须先使用语义分析委托。
+  4. **批量添加方法**：`AddProductionsByStrings`，文本添加方法的批量方法。
+  5. **异常**：`ProductSentenceException`，如果产生式文本格式错误，则抛出异常，并报告具体文本。
+- **最小语法分析单位**：`ParseUnit`
+  1. 创建规则：由词法分析结果或产生式创建，不可以由用户主动创建。
+  2. Name：名称，与产生式前件或词法分析结果名称一致。
+  3. ParseUnits：子单位们，以形成语法树。
+  4. Position：语法项的位置，由第一个（最前端）的词法分析项位置决定。
+  5. Property：为高级应用预留的位置。
+  6. Value：保存的值，比如词法分析结果的值等。

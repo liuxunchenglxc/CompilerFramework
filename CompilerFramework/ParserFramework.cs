@@ -130,6 +130,7 @@ namespace CompilerFramework.Parser
         /// E -> E F @Semant$deal
         /// </summary>
         /// <param name="productSentence">formated string</param>
+        /// <exception cref="ProductSentenceException">if productSentence is illeagal</exception>
         public void AddProductionByString(string productSentence)
         {
             string[] vs = productSentence.Split(" ");
@@ -140,9 +141,9 @@ namespace CompilerFramework.Parser
             object attr = null;
             if (vs[i].StartsWith('@'))
             {
-                string[] s = vs[i].TrimStart('@').Split("$");
+                string[] s = vs[i].TrimStart('@').Split("$", 2);
                 semantDelegate = SemantDelegateTable[s[0]];
-                attr = s[1];
+                if (s[1].Length > 0) attr = s[1];
                 i--;
             }
             string[] sufs = new string[i];
