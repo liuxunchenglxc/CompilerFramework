@@ -218,6 +218,16 @@ namespace CompilerFramework.Parser
             Property = property;
         }
         /// <summary>
+        /// is terminator, if no children.
+        /// </summary>
+        public bool IsTerminator
+        {
+            get
+            {
+                return ParseUnits.Length == 0;
+            }
+        }
+        /// <summary>
         /// name of this
         /// </summary>
         public string Name { get; }
