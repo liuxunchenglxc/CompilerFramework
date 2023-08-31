@@ -349,9 +349,7 @@ class LexerFramework:
         s: str
          that multiple lines string will be Lexed
         group: int
-         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
-        newline: str
-         newline for io.StringIO to seperate lines.
+         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios..
 
         Returns
         -------
