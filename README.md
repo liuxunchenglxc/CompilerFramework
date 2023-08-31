@@ -14,6 +14,10 @@
 - Something more...
 ## Docs
 https://compilerframework.readthedocs.io/en/latest/index.html
+## Docstring Format
+Author uses the Numpy format as Sphinx docs shown.
+
+https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_numpy.html#example-numpy
 
 # CSharp Version
 作者现在写下面这句话的时候是2023年。这个C#版本是2019年写的，现在4年过去了，由于作者的电脑里也早就没有了那些开发环境，C#也很久没有碰过了，并且最近一直在使用Python，所以C#版本大概率不会再更新，相反，作者会新写一个Python版本来替代原来的版本，毕竟作者个人认为最终编译器的实现并不在于框架使用了什么语言，框架只是为了方便大家去设计词法语法等这些基础的东西，大家可以借助框架来生成C语言片段甚至汇编语言片段等底层语言来帮助实现最终的语义部分，以形成编译器成品。
