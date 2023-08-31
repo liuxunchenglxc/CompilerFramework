@@ -147,7 +147,7 @@ class LexItem:
         self.name = name
         self.format_cap_text = format_cap_text
 
-    def set_regex(self, reg_expr: str, reg_flags: re.RegexFlag = re.NOFLAG) -> None:
+    def set_regex(self, reg_expr: str, reg_flags = 0) -> None:
         """
         Set the Regex
          
@@ -155,7 +155,7 @@ class LexItem:
         ----------
         reg_expr: str
          Regular expression string
-        reg_flags:  re.RegexFlag
+        reg_flags:
          https://docs.python.org/3/library/re.html#flags
         """
         self.regex = re.compile(reg_expr, reg_flags)
@@ -238,7 +238,7 @@ class LexerFramework:
     def non_format_cap_text(s: str) -> Any:
         return s
 
-    def add_lex_item(self, name: str, reg_expr: str, format_cap_text: Callable[[str], Any] = non_format_cap_text, reg_flags: re.RegexFlag = re.NOFLAG, group: int = 0) -> None:
+    def add_lex_item(self, name: str, reg_expr: str, format_cap_text: Callable[[str], Any] = non_format_cap_text, reg_flags = 0, group: int = 0) -> None:
         """
         Add a Lex item, and Lex with this order.
          
@@ -250,8 +250,10 @@ class LexerFramework:
          Regular Expression of Lex, and automately add "^" at head
         format_cap_text: Callable[[str], Any]
          Callable of formatting the result of RegExpr
-        reg_flags: re.RegexFlag
+        reg_flags:
          https://docs.python.org/3/library/re.html#flags
+        group: int
+         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
         """
         if name is None:
             return
@@ -384,4 +386,164 @@ class LexerFramework:
                     raise NoMatchException(line, col)
         self.on_finished_callback(index)
         return index
+
+class HLlangLexerFramework(LexerFramework):
+    """
+    High Level programing language (HLlang) Lexer framework
+    """
+    
+    def __init__(self, lex_item_groups: List[List[LexItem]] = [[]]):
+        """
+        Construct menthod with LexItems
+         
+        Parameters
+        ----------
+        lex_items: List[LexItem]
+         Prepared LexItemGroups
+        """
+        super().__init__(lex_item_groups)
+
+    
+    def add_res_words(self, name: str = "ResWord", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags = 0, group: int = 0, *reg_exprs: str) -> None:
+        """
+        Add reserved words Lex items, and recomand to do this before add indentifier Lex item.
+
+        Parameters
+        ----------
+        name: str
+         Name of Lex items
+        format_cap_text: Callable[[str], Any]
+         Callable of formatting the result of these reg_exprs
+        reg_flags:
+         https://docs.python.org/3/library/re.html#flags
+        group: int
+         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
+        *reg_exprs: str
+         the tuple of reg_exprs
+        """
+        for reg_expr in reg_exprs:
+            if reg_expr[-8:] != "(?=\\W|$)":
+                reg_expr = reg_expr + "(?=\\W|$)"
+            self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
+    
+    
+    def add_identifier(self, name: str = "Identifier", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags = 0, group: int = 0, reg_expr: str = "[A-Za-z]\\w*") -> None:
+        """
+        Add identifier Lex item, and recomand to do this after add reserved words Lex item.
+
+        Parameters
+        ----------
+        name: str
+         Name of Lex items
+        format_cap_text: Callable[[str], Any]
+         Callable of formatting the result of these reg_exprs
+        reg_flags:
+         https://docs.python.org/3/library/re.html#flags
+        group: int
+         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
+        reg_expr: str
+         Regular Expression of Lex item
+        """
+        self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
+
+    
+    def add_operators(self, name: str = "Operator", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags = 0, group: int = 0, *reg_exprs: str) -> None:
+        """
+        Add operators Lex items, and recomand to add composite operators first.
+
+        Parameters
+        ----------
+        name: str
+         Name of Lex items
+        format_cap_text: Callable[[str], Any]
+         Callable of formatting the result of these reg_exprs
+        reg_flags:
+         https://docs.python.org/3/library/re.html#flags
+        group: int
+         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
+        *reg_exprs: str
+         the tuple of reg_exprs
+        """
+        for reg_expr in reg_exprs:
+            self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
+
+    
+    def add_delimiters(self, name: str = "Delimiter", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags = 0, group: int = 0, *reg_exprs: str) -> None:
+        """
+        Add Delimiters Lex items, and recomand to add composite delimiters first.
+
+        Parameters
+        ----------
+        name: str
+         Name of Lex items
+        format_cap_text: Callable[[str], Any]
+         Callable of formatting the result of these reg_exprs
+        reg_flags:
+         https://docs.python.org/3/library/re.html#flags
+        group: int
+         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
+        *reg_exprs: str
+         the tuple of reg_exprs
+        """
+        for reg_expr in reg_exprs:
+            self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
+
+
+    def add_constants(self, name: str = "Constant", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags = 0, group: int = 0, is_add_zero_width_assertion: bool = True, *reg_exprs: str) -> None:
+        """
+        Add Constants Lex items, and recomand to add composite constants first.
+
+        Parameters
+        ----------
+        name: str
+         Name of Lex items
+        format_cap_text: Callable[[str], Any]
+         Callable of formatting the result of these reg_exprs
+        reg_flags:
+         https://docs.python.org/3/library/re.html#flags
+        group: int
+         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
+        *reg_exprs: str
+         the tuple of reg_exprs
+        """
+        for reg_expr in reg_exprs:
+            if reg_expr[-8:] != "(?=\\W|$)" and is_add_zero_width_assertion:
+                reg_expr = reg_expr + "(?=\\W|$)"
+            self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
+
+
+    @staticmethod
+    def drop_null(s: str) -> None:
+        """
+        As Callable of formatting the result of these reg_exprs defined, deal with blank words.
+        Parameters
+        ----------
+        s: str
+         string to be drop
+        """
+        pass
+
+
+    @staticmethod
+    def convert_int(s: str) -> int:
+        """
+        As Callable of formatting the result of these reg_exprs defined, deal with int words.
+        Parameters
+        ----------
+        s: str
+         string to be int
+        """
+        return int(s)
+
+
+    @staticmethod
+    def convert_float(s: str) -> float:
+        """
+        As Callable of formatting the result of these reg_exprs defined, deal with float words.
+        Parameters
+        ----------
+        s: str
+         string to be float
+        """
+        return float(s)
 
