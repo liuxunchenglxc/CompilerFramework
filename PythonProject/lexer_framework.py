@@ -340,9 +340,9 @@ class LexerFramework:
         s = s[len(result):]
         return s, index
 
-    def lex_multi_lines(self, s: str, group: int = 0, newline: str = '\n') -> int:
+    def lex_stream(self, text_reader: io.IOBase, group: int = 0) -> int:
         """
-        Lex multiple lines string, but as single line read-parttern. If formated value equal null, then drop it. By the way, please get the result from on_lexed_callback(for filting result) and set_on_accepted_callback(for getting result) one by one. For example, you can write a collector for receiving results.
+        Lex multiple lines string stream(io.StringIO) or file stream(with open() func), but as single line read-parttern. If formated value equal null, then drop it. By the way, please get the result from on_lexed_callback(for filting result) and set_on_accepted_callback(for getting result) one by one. For example, you can write a collector for receiving results.
          
         Parameters
         ----------
@@ -368,10 +368,9 @@ class LexerFramework:
         index = 0
         line = 0
         pos = -1
-        text_reader = io.StringIO(s, newline)
         while text_reader.tell() == pos:
             pos = text_reader.tell()
-            line_text = text_reader.readline().strip()
+            line_text = str(text_reader.readline()).strip()
             line += 1
             col_num = len(line_text)
             while line_text:
