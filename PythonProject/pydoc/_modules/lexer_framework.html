@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lexer_framework &mdash; CompilerFramework-Python  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CompilerFramework-Python
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../lexer_framework.html">lexer_framework module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CompilerFramework-Python</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">lexer_framework</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for lexer_framework</h1><div class="highlight"><pre>
+<span></span><span class="c1">#    CompilerFramework Python Version - LexerFramework</span>
+<span class="c1">#    Copyright(C) 2023  刘迅承</span>
+
+<span class="c1">#    This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">#    it under the terms of the GNU General Public License as published by</span>
+<span class="c1">#    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">#    (at your option) any later version.</span>
+
+<span class="c1">#    This program is distributed in the hope that it will be useful,</span>
+<span class="c1">#    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the</span>
+<span class="c1">#    GNU General Public License for more details.</span>
+
+<span class="c1">#    You should have received a copy of the GNU General Public License</span>
+<span class="c1">#    along with this program.If not, see&lt;https://www.gnu.org/licenses/&gt;.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">io</span>
+
+<div class="viewcode-block" id="IlleagalNameException">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.IlleagalNameException">[docs]</a>
+<span class="k">class</span> <span class="nc">IlleagalNameException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Name of Item is illeagal</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="IlleagalNameException.__init__">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.IlleagalNameException.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct menthod</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            error name</span>
+<span class="sd">        *args</span>
+<span class="sd">            for super class Exception</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span></div>
+
+    
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Illeagal Name: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">. Name cannot start with &#39;@&#39;.&quot;</span></div>
+
+
+<div class="viewcode-block" id="ZeroLenghtMatchException">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.ZeroLenghtMatchException">[docs]</a>
+<span class="k">class</span> <span class="nc">ZeroLenghtMatchException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception produeced while match zero width</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ZeroLenghtMatchException.__init__">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.ZeroLenghtMatchException.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct menthod</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            error lex name</span>
+<span class="sd">        pattern : str</span>
+<span class="sd">            error reg pattern</span>
+<span class="sd">        *args</span>
+<span class="sd">            for super class Exception</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">pattern</span></div>
+
+    
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Lex Error: Zero Length String Matched, indicating end-less loop, by Name: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, RegExpr: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pattern</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="GroupNumException">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.GroupNumException">[docs]</a>
+<span class="k">class</span> <span class="nc">GroupNumException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception produeced while group number is too small or too large</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GroupNumException.__init__">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.GroupNumException.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct menthod</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        group : int</span>
+<span class="sd">            error group index</span>
+<span class="sd">        *args</span>
+<span class="sd">            for super class Exception</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="n">group</span></div>
+
+    
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;AddLexItem Error: illeagal Lex group number: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="NoMatchException">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.NoMatchException">[docs]</a>
+<span class="k">class</span> <span class="nc">NoMatchException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception produeced while no lex items in group match the rest text.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NoMatchException.__init__">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.NoMatchException.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct menthod</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        line : int</span>
+<span class="sd">            error line number</span>
+<span class="sd">        col : int</span>
+<span class="sd">            error column number</span>
+<span class="sd">        *args</span>
+<span class="sd">            for super class Exception</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">col</span></div>
+
+    
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Lex Error: Cannot match words at line </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="si">}</span><span class="s2"> and column </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="LexItem">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexItem">[docs]</a>
+<span class="k">class</span> <span class="nc">LexItem</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The item of Lexer</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    self.name : str</span>
+<span class="sd">        Name of Lex item</span>
+<span class="sd">    self.format_cap_tex : :obj:`Callable` of :obj:`[str], Any`</span>
+<span class="sd">        Callable of formatting the result of RegExpr</span>
+<span class="sd">    self.regex : :obj:&#39;re.Pattern&#39;</span>
+<span class="sd">        Regex operation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LexItem.__init__">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexItem.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">format_cap_text</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct method</span>
+<span class="sd">         </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name of Lex Item</span>
+<span class="sd">        format_cap_text : :obj:`Callable` of :obj:`[str], Any`</span>
+<span class="sd">            Callable of formatting the result of RegExpr</span>
+<span class="sd">         </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        IlleagalNameException</span>
+<span class="sd">            when name start with &#39;@&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^@.*&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">IlleagalNameException</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">format_cap_text</span> <span class="o">=</span> <span class="n">format_cap_text</span></div>
+
+
+<div class="viewcode-block" id="LexItem.set_regex">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexItem.set_regex">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_regex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_expr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reg_flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the Regex</span>
+<span class="sd">         </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        reg_expr : str</span>
+<span class="sd">            Regular expression string</span>
+<span class="sd">        reg_flags</span>
+<span class="sd">            https://docs.python.org/3/library/re.html#flags</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">reg_expr</span><span class="p">,</span> <span class="n">reg_flags</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="LexerResult">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexerResult">[docs]</a>
+<span class="k">class</span> <span class="nc">LexerResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lex Result</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    self.index : int</span>
+<span class="sd">        Order of Lex result</span>
+<span class="sd">    self.name : str</span>
+<span class="sd">        Name of Lex Item</span>
+<span class="sd">    self.value : :obj:`Any`</span>
+<span class="sd">        Value of Lex result</span>
+<span class="sd">    self.position : :obj:`Tuple` of :obj:`int, int`</span>
+<span class="sd">        position of item (line, col)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LexerResult.__init__">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexerResult.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct method</span>
+<span class="sd">         </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        index : int</span>
+<span class="sd">            Order of Lex result</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name of Lex Item</span>
+<span class="sd">        value : :obj:`Any`</span>
+<span class="sd">            Value of Lex result</span>
+<span class="sd">        line : int</span>
+<span class="sd">            line number</span>
+<span class="sd">        col : int</span>
+<span class="sd">            column number</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="LexerFramework">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexerFramework">[docs]</a>
+<span class="k">class</span> <span class="nc">LexerFramework</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Framework of Lexer</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    self.lex_item_groups : :obj:`List` of :obj:`List` of :obj:`LexItem`</span>
+<span class="sd">        Groups of Lex Items in list</span>
+<span class="sd">    self.on_lexed_callback: :obj:`Callable` of :obj:`[LexerResult], bool`</span>
+<span class="sd">        the callback when single Lex result produced to judge whether accept this lex result.</span>
+<span class="sd">    self.on_accepted_callback: :obj:`Callable` of :obj:`[LexerResult], None`</span>
+<span class="sd">        the callback when single Lex result accepted by on_lexed_callback</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LexerFramework.__init__">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexerFramework.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lex_item_groups</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">LexItem</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct menthod with LexItems</span>
+<span class="sd">         </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lex_items : :obj:`List` of :obj:`LexItem`, optional</span>
+<span class="sd">            Prepared LexItemGroups</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lex_item_groups</span> <span class="o">=</span> <span class="n">lex_item_groups</span></div>
+
+
+<div class="viewcode-block" id="LexerFramework.add_lex_group">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexerFramework.add_lex_group">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_lex_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lex_items</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LexItem</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new group of lex items.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lex_items : :obj:`List` of :obj:`LexItem`, optional</span>
+<span class="sd">            new group of lex items</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lex_item_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lex_items</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LexerFramework.non_format_cap_text">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexerFramework.non_format_cap_text">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">non_format_cap_text</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="LexerFramework.add_lex_item">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexerFramework.add_lex_item">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_lex_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reg_expr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">format_cap_text</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">non_format_cap_text</span><span class="p">,</span> <span class="n">reg_flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a Lex item, and Lex with this order.</span>
+<span class="sd">         </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name of item</span>
+<span class="sd">        reg_expr : str</span>
+<span class="sd">            Regular Expression of Lex, and automately add &quot;^&quot; at head</span>
+<span class="sd">        format_cap_text : :obj:`Callable` of :obj:`[str], Any`, optional</span>
+<span class="sd">            Callable of formatting the result of RegExpr</span>
+<span class="sd">        reg_flags : optional</span>
+<span class="sd">            https://docs.python.org/3/library/re.html#flags</span>
+<span class="sd">        group : int, optional</span>
+<span class="sd">            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">reg_expr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">lex_item</span> <span class="o">=</span> <span class="n">LexItem</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">format_cap_text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reg_expr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;^&#39;</span><span class="p">:</span>
+            <span class="n">reg_expr</span> <span class="o">=</span> <span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="n">reg_expr</span>
+        <span class="n">lex_item</span><span class="o">.</span><span class="n">set_regex</span><span class="p">(</span><span class="n">reg_expr</span><span class="p">,</span> <span class="n">reg_flags</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">group</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lex_item_groups</span><span class="p">)</span> <span class="ow">or</span> <span class="n">group</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GroupNumException</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lex_item_groups</span><span class="p">[</span><span class="n">group</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lex_item</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LexerFramework.set_on_lexed_callback">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexerFramework.set_on_lexed_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_on_lexed_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">LexerResult</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the callback when single Lex result produced. Accept(return true) or not(return false) the single lex result.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        1st : :obj:`LexerResult`</span>
+<span class="sd">            one result of lex</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_lexed_callback</span> <span class="o">=</span> <span class="n">callback</span></div>
+
+
+<div class="viewcode-block" id="LexerFramework.set_on_accepted_callback">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexerFramework.set_on_accepted_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_on_accepted_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">LexerResult</span><span class="p">],</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the callback when single Lex result accepted by on_lexed_callback, and you need to choice which parser framework you need in paring.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        1st : :obj:`LexerResult`</span>
+<span class="sd">            one result of lex</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_accepted_callback</span> <span class="o">=</span> <span class="n">callback</span></div>
+
+
+<div class="viewcode-block" id="LexerFramework.set_on_finished_callback">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexerFramework.set_on_finished_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_on_finished_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the callback when all lex is done.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        1st : int</span>
+<span class="sd">            the total number of lex results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_finished_callback</span> <span class="o">=</span> <span class="n">callback</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_lex_single_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lex_item</span><span class="p">:</span> <span class="n">LexItem</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lex a single line string, if formated value equal null, then drop it and return true.</span>
+<span class="sd">         </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        s : str</span>
+<span class="sd">            that string will be Lexed</span>
+<span class="sd">        lex_item : :obj:`LexItem`</span>
+<span class="sd">            Lex item for Lex string</span>
+<span class="sd">        index : int</span>
+<span class="sd">            index of Lex result</span>
+<span class="sd">        line : int</span>
+<span class="sd">            line number</span>
+<span class="sd">        col : int</span>
+<span class="sd">            column number</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`Tuple` of :obj:`str, int`</span>
+<span class="sd">            new trimed string and the new index</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ZeroLenghtMatchException</span>
+<span class="sd">            when match the zero length word</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">lex_item</span><span class="o">.</span><span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">s</span><span class="p">,</span> <span class="n">index</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ZeroLenghtMatchException</span><span class="p">(</span><span class="n">lex_item</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">lex_item</span><span class="o">.</span><span class="n">regex</span><span class="o">.</span><span class="n">pattern</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">lex_item</span><span class="o">.</span><span class="n">format_cap_text</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">lexer_result</span> <span class="o">=</span> <span class="n">LexerResult</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">lex_item</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_lexed_callback</span><span class="p">(</span><span class="n">lexer_result</span><span class="p">):</span>
+                <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_accepted_callback</span><span class="p">(</span><span class="n">lexer_result</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">):]</span>
+        <span class="k">return</span> <span class="n">s</span><span class="p">,</span> <span class="n">index</span>
+
+<div class="viewcode-block" id="LexerFramework.lex_stream">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.LexerFramework.lex_stream">[docs]</a>
+    <span class="k">def</span> <span class="nf">lex_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text_reader</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">IOBase</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lex multiple lines string stream(io.StringIO) or file stream(with open() func), but as single line read-parttern. If formated value equal null, then drop it. By the way, please get the result from on_lexed_callback(for filting result) and set_on_accepted_callback(for getting result) one by one. For example, you can write a collector for receiving results.</span>
+<span class="sd">         </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        text_reader : :obj:`io.IOBase`</span>
+<span class="sd">            that multiple lines string will be Lexed</span>
+<span class="sd">        group : int, optional</span>
+<span class="sd">            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios..</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            the count of results</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        NoMatchException</span>
+<span class="sd">            if input line cannot be matched by Lex items</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lex_item_groups</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">while</span> <span class="n">text_reader</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span> <span class="o">==</span> <span class="n">pos</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">text_reader</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+            <span class="n">line_text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">text_reader</span><span class="o">.</span><span class="n">readline</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">col_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">line_text</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">line_text</span><span class="p">:</span>
+                <span class="n">is_match</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="n">col_num</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">line_text</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">for</span> <span class="n">lex_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lex_item_groups</span><span class="p">[</span><span class="n">group</span><span class="p">]:</span>
+                    <span class="n">line_text</span><span class="p">,</span> <span class="n">new_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lex_single_line</span><span class="p">(</span><span class="n">line_text</span><span class="p">,</span> <span class="n">lex_item</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">new_index</span> <span class="o">!=</span> <span class="n">index</span><span class="p">:</span>
+                        <span class="n">is_match</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">index</span> <span class="o">=</span> <span class="n">new_index</span>
+                        <span class="n">col</span> <span class="o">=</span> <span class="n">col_num</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">line_text</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">is_match</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">NoMatchException</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_finished_callback</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">index</span></div>
+</div>
+
+
+<div class="viewcode-block" id="HLlangLexerFramework">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.HLlangLexerFramework">[docs]</a>
+<span class="k">class</span> <span class="nc">HLlangLexerFramework</span><span class="p">(</span><span class="n">LexerFramework</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    High Level programing language (HLlang) Lexer framework</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="HLlangLexerFramework.__init__">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.HLlangLexerFramework.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lex_item_groups</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">LexItem</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct menthod with LexItems</span>
+<span class="sd">         </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lex_items : :obj:`List` of :obj:`LexItem`, optional</span>
+<span class="sd">            Prepared LexItemGroups</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lex_item_groups</span><span class="p">)</span></div>
+
+
+    
+<div class="viewcode-block" id="HLlangLexerFramework.add_res_words">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.HLlangLexerFramework.add_res_words">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_res_words</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ResWord&quot;</span><span class="p">,</span> <span class="n">format_cap_text</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">LexerFramework</span><span class="o">.</span><span class="n">non_format_cap_text</span><span class="p">,</span> <span class="n">reg_flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">reg_exprs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add reserved words Lex items, and recomand to do this before add indentifier Lex item.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str, optional</span>
+<span class="sd">            Name of Lex items</span>
+<span class="sd">        format_cap_text : :obj:`Callable` of :obj:`[str], Any`, optional</span>
+<span class="sd">            Callable of formatting the result of these reg_exprs</span>
+<span class="sd">        reg_flags : optional</span>
+<span class="sd">            https://docs.python.org/3/library/re.html#flags</span>
+<span class="sd">        group : int, optional</span>
+<span class="sd">            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.</span>
+<span class="sd">        *reg_exprs : str</span>
+<span class="sd">            the tuple of reg_exprs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">reg_expr</span> <span class="ow">in</span> <span class="n">reg_exprs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">reg_expr</span><span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">:]</span> <span class="o">!=</span> <span class="s2">&quot;(?=</span><span class="se">\\</span><span class="s2">W|$)&quot;</span><span class="p">:</span>
+                <span class="n">reg_expr</span> <span class="o">=</span> <span class="n">reg_expr</span> <span class="o">+</span> <span class="s2">&quot;(?=</span><span class="se">\\</span><span class="s2">W|$)&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_lex_item</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">reg_expr</span><span class="p">,</span> <span class="n">format_cap_text</span><span class="p">,</span> <span class="n">reg_flags</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span></div>
+
+    
+    
+<div class="viewcode-block" id="HLlangLexerFramework.add_identifier">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.HLlangLexerFramework.add_identifier">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Identifier&quot;</span><span class="p">,</span> <span class="n">format_cap_text</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">LexerFramework</span><span class="o">.</span><span class="n">non_format_cap_text</span><span class="p">,</span> <span class="n">reg_flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">reg_expr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;[A-Za-z]</span><span class="se">\\</span><span class="s2">w*&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add identifier Lex item, and recomand to do this after add reserved words Lex item.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str, optional</span>
+<span class="sd">            Name of Lex items</span>
+<span class="sd">        format_cap_text: :obj:`Callable` of :obj:`[str], Any`, optional</span>
+<span class="sd">            Callable of formatting the result of these reg_exprs</span>
+<span class="sd">        reg_flags : optional</span>
+<span class="sd">            https://docs.python.org/3/library/re.html#flags</span>
+<span class="sd">        group: int, optional</span>
+<span class="sd">            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.</span>
+<span class="sd">        reg_expr : str, optional</span>
+<span class="sd">            Regular Expression of Lex item</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_lex_item</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">reg_expr</span><span class="p">,</span> <span class="n">format_cap_text</span><span class="p">,</span> <span class="n">reg_flags</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span></div>
+
+
+    
+<div class="viewcode-block" id="HLlangLexerFramework.add_operators">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.HLlangLexerFramework.add_operators">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_operators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Operator&quot;</span><span class="p">,</span> <span class="n">format_cap_text</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">LexerFramework</span><span class="o">.</span><span class="n">non_format_cap_text</span><span class="p">,</span> <span class="n">reg_flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">reg_exprs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add operators Lex items, and recomand to add composite operators first.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str, optional</span>
+<span class="sd">            Name of Lex items</span>
+<span class="sd">        format_cap_text : :obj:`Callable` of :obj:`[str], Any`, optional</span>
+<span class="sd">            Callable of formatting the result of these reg_exprs</span>
+<span class="sd">        reg_flags : optional</span>
+<span class="sd">            https://docs.python.org/3/library/re.html#flags</span>
+<span class="sd">        group : int, optional</span>
+<span class="sd">            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.</span>
+<span class="sd">        *reg_exprs : str</span>
+<span class="sd">            the tuple of reg_exprs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">reg_expr</span> <span class="ow">in</span> <span class="n">reg_exprs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_lex_item</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">reg_expr</span><span class="p">,</span> <span class="n">format_cap_text</span><span class="p">,</span> <span class="n">reg_flags</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span></div>
+
+
+    
+<div class="viewcode-block" id="HLlangLexerFramework.add_delimiters">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.HLlangLexerFramework.add_delimiters">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_delimiters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Delimiter&quot;</span><span class="p">,</span> <span class="n">format_cap_text</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">LexerFramework</span><span class="o">.</span><span class="n">non_format_cap_text</span><span class="p">,</span> <span class="n">reg_flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">reg_exprs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add Delimiters Lex items, and recomand to add composite delimiters first.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str, optional</span>
+<span class="sd">            Name of Lex items</span>
+<span class="sd">        format_cap_text : :obj:`Callable` of :obj:`[str], Any`, optional</span>
+<span class="sd">            Callable of formatting the result of these reg_exprs</span>
+<span class="sd">        reg_flags : optional</span>
+<span class="sd">            https://docs.python.org/3/library/re.html#flags</span>
+<span class="sd">        group : int, optional</span>
+<span class="sd">            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.</span>
+<span class="sd">        *reg_exprs : str</span>
+<span class="sd">            the tuple of reg_exprs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">reg_expr</span> <span class="ow">in</span> <span class="n">reg_exprs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_lex_item</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">reg_expr</span><span class="p">,</span> <span class="n">format_cap_text</span><span class="p">,</span> <span class="n">reg_flags</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="HLlangLexerFramework.add_constants">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.HLlangLexerFramework.add_constants">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Constant&quot;</span><span class="p">,</span> <span class="n">format_cap_text</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">LexerFramework</span><span class="o">.</span><span class="n">non_format_cap_text</span><span class="p">,</span> <span class="n">reg_flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">is_add_zero_width_assertion</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">reg_exprs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add Constants Lex items, and recomand to add composite constants first.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str, optional</span>
+<span class="sd">            Name of Lex items</span>
+<span class="sd">        format_cap_text : :obj:`Callable` of :obj:`[str], Any`, optional</span>
+<span class="sd">            Callable of formatting the result of these reg_exprs</span>
+<span class="sd">        reg_flags : optional</span>
+<span class="sd">            https://docs.python.org/3/library/re.html#flags</span>
+<span class="sd">        group : int, optional</span>
+<span class="sd">            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.</span>
+<span class="sd">        is_add_zero_width_assertion : bool, optional</span>
+<span class="sd">            add zero width assertion at end or not</span>
+<span class="sd">        *reg_exprs : str</span>
+<span class="sd">            the tuple of reg_exprs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">reg_expr</span> <span class="ow">in</span> <span class="n">reg_exprs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">reg_expr</span><span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">:]</span> <span class="o">!=</span> <span class="s2">&quot;(?=</span><span class="se">\\</span><span class="s2">W|$)&quot;</span> <span class="ow">and</span> <span class="n">is_add_zero_width_assertion</span><span class="p">:</span>
+                <span class="n">reg_expr</span> <span class="o">=</span> <span class="n">reg_expr</span> <span class="o">+</span> <span class="s2">&quot;(?=</span><span class="se">\\</span><span class="s2">W|$)&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_lex_item</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">reg_expr</span><span class="p">,</span> <span class="n">format_cap_text</span><span class="p">,</span> <span class="n">reg_flags</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="HLlangLexerFramework.drop_null">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.HLlangLexerFramework.drop_null">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">drop_null</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        As Callable of formatting the result of these reg_exprs defined, deal with blank words.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        s : str</span>
+<span class="sd">            string to be drop</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="HLlangLexerFramework.convert_int">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.HLlangLexerFramework.convert_int">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">convert_int</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        As Callable of formatting the result of these reg_exprs defined, deal with int words.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        s : str</span>
+<span class="sd">            string to be int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="HLlangLexerFramework.convert_float">
+<a class="viewcode-back" href="../lexer_framework.html#lexer_framework.HLlangLexerFramework.convert_float">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">convert_float</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        As Callable of formatting the result of these reg_exprs defined, deal with float words.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        s : str</span>
+<span class="sd">            string to be float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+</div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, 刘迅承.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

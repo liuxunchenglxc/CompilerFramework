@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lexer_framework module &mdash; CompilerFramework-Python  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to CompilerFramework-Python’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CompilerFramework-Python
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">lexer_framework module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#lexer_framework.GroupNumException"><code class="docutils literal notranslate"><span class="pre">GroupNumException</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.GroupNumException.__init__"><code class="docutils literal notranslate"><span class="pre">GroupNumException.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#lexer_framework.HLlangLexerFramework"><code class="docutils literal notranslate"><span class="pre">HLlangLexerFramework</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.HLlangLexerFramework.__init__"><code class="docutils literal notranslate"><span class="pre">HLlangLexerFramework.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.HLlangLexerFramework.add_constants"><code class="docutils literal notranslate"><span class="pre">HLlangLexerFramework.add_constants()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.HLlangLexerFramework.add_delimiters"><code class="docutils literal notranslate"><span class="pre">HLlangLexerFramework.add_delimiters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.HLlangLexerFramework.add_identifier"><code class="docutils literal notranslate"><span class="pre">HLlangLexerFramework.add_identifier()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.HLlangLexerFramework.add_operators"><code class="docutils literal notranslate"><span class="pre">HLlangLexerFramework.add_operators()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.HLlangLexerFramework.add_res_words"><code class="docutils literal notranslate"><span class="pre">HLlangLexerFramework.add_res_words()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.HLlangLexerFramework.convert_float"><code class="docutils literal notranslate"><span class="pre">HLlangLexerFramework.convert_float()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.HLlangLexerFramework.convert_int"><code class="docutils literal notranslate"><span class="pre">HLlangLexerFramework.convert_int()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.HLlangLexerFramework.drop_null"><code class="docutils literal notranslate"><span class="pre">HLlangLexerFramework.drop_null()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#lexer_framework.IlleagalNameException"><code class="docutils literal notranslate"><span class="pre">IlleagalNameException</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.IlleagalNameException.__init__"><code class="docutils literal notranslate"><span class="pre">IlleagalNameException.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#lexer_framework.LexItem"><code class="docutils literal notranslate"><span class="pre">LexItem</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.LexItem.__init__"><code class="docutils literal notranslate"><span class="pre">LexItem.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.LexItem.set_regex"><code class="docutils literal notranslate"><span class="pre">LexItem.set_regex()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#lexer_framework.LexerFramework"><code class="docutils literal notranslate"><span class="pre">LexerFramework</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.LexerFramework.__init__"><code class="docutils literal notranslate"><span class="pre">LexerFramework.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.LexerFramework.add_lex_group"><code class="docutils literal notranslate"><span class="pre">LexerFramework.add_lex_group()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.LexerFramework.add_lex_item"><code class="docutils literal notranslate"><span class="pre">LexerFramework.add_lex_item()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.LexerFramework.lex_stream"><code class="docutils literal notranslate"><span class="pre">LexerFramework.lex_stream()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.LexerFramework.non_format_cap_text"><code class="docutils literal notranslate"><span class="pre">LexerFramework.non_format_cap_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.LexerFramework.set_on_accepted_callback"><code class="docutils literal notranslate"><span class="pre">LexerFramework.set_on_accepted_callback()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.LexerFramework.set_on_finished_callback"><code class="docutils literal notranslate"><span class="pre">LexerFramework.set_on_finished_callback()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.LexerFramework.set_on_lexed_callback"><code class="docutils literal notranslate"><span class="pre">LexerFramework.set_on_lexed_callback()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#lexer_framework.LexerResult"><code class="docutils literal notranslate"><span class="pre">LexerResult</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.LexerResult.__init__"><code class="docutils literal notranslate"><span class="pre">LexerResult.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#lexer_framework.NoMatchException"><code class="docutils literal notranslate"><span class="pre">NoMatchException</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.NoMatchException.__init__"><code class="docutils literal notranslate"><span class="pre">NoMatchException.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#lexer_framework.ZeroLenghtMatchException"><code class="docutils literal notranslate"><span class="pre">ZeroLenghtMatchException</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lexer_framework.ZeroLenghtMatchException.__init__"><code class="docutils literal notranslate"><span class="pre">ZeroLenghtMatchException.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CompilerFramework-Python</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">lexer_framework module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/lexer_framework.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-lexer_framework">
+<span id="lexer-framework-module"></span><h1>lexer_framework module<a class="headerlink" href="#module-lexer_framework" title="Link to this heading"></a></h1>
+<dl class="py exception">
+<dt class="sig sig-object py" id="lexer_framework.GroupNumException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lexer_framework.</span></span><span class="sig-name descname"><span class="pre">GroupNumException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#GroupNumException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.GroupNumException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception produeced while group number is too small or too large</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.GroupNumException.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#GroupNumException.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.GroupNumException.__init__" title="Link to this definition"></a></dt>
+<dd><p>Construct menthod</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group</strong> (<em>int</em>) – error group index</p></li>
+<li><p><strong>*args</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>) – for super class Exception</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="lexer_framework.HLlangLexerFramework">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lexer_framework.</span></span><span class="sig-name descname"><span class="pre">HLlangLexerFramework</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lex_item_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[[]]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#HLlangLexerFramework"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.HLlangLexerFramework" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lexer_framework.LexerFramework" title="lexer_framework.LexerFramework"><code class="xref py py-class docutils literal notranslate"><span class="pre">LexerFramework</span></code></a></p>
+<p>High Level programing language (HLlang) Lexer framework</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.HLlangLexerFramework.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lex_item_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[[]]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#HLlangLexerFramework.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.HLlangLexerFramework.__init__" title="Link to this definition"></a></dt>
+<dd><p>Construct menthod with LexItems</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lex_items</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">List</span></code> of <a class="reference internal" href="#lexer_framework.LexItem" title="lexer_framework.LexItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LexItem</span></code></a>, optional) – Prepared LexItemGroups</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.HLlangLexerFramework.add_constants">
+<span class="sig-name descname"><span class="pre">add_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name='Constant'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_cap_text=&lt;function</span> <span class="pre">LexerFramework.non_format_cap_text&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_flags=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_add_zero_width_assertion=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*reg_exprs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#HLlangLexerFramework.add_constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.HLlangLexerFramework.add_constants" title="Link to this definition"></a></dt>
+<dd><p>Add Constants Lex items, and recomand to add composite constants first.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of Lex items</p></li>
+<li><p><strong>format_cap_text</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">[str],</span> <span class="pre">Any</span></code>, optional) – Callable of formatting the result of these reg_exprs</p></li>
+<li><p><strong>reg_flags</strong> (<em>optional</em>) – <a class="reference external" href="https://docs.python.org/3/library/re.html#flags">https://docs.python.org/3/library/re.html#flags</a></p></li>
+<li><p><strong>group</strong> (<em>int</em><em>, </em><em>optional</em>) – the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.</p></li>
+<li><p><strong>is_add_zero_width_assertion</strong> (<em>bool</em><em>, </em><em>optional</em>) – add zero width assertion at end or not</p></li>
+<li><p><strong>*reg_exprs</strong> (<em>str</em>) – the tuple of reg_exprs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.HLlangLexerFramework.add_delimiters">
+<span class="sig-name descname"><span class="pre">add_delimiters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name='Delimiter'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_cap_text=&lt;function</span> <span class="pre">LexerFramework.non_format_cap_text&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_flags=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*reg_exprs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#HLlangLexerFramework.add_delimiters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.HLlangLexerFramework.add_delimiters" title="Link to this definition"></a></dt>
+<dd><p>Add Delimiters Lex items, and recomand to add composite delimiters first.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of Lex items</p></li>
+<li><p><strong>format_cap_text</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">[str],</span> <span class="pre">Any</span></code>, optional) – Callable of formatting the result of these reg_exprs</p></li>
+<li><p><strong>reg_flags</strong> (<em>optional</em>) – <a class="reference external" href="https://docs.python.org/3/library/re.html#flags">https://docs.python.org/3/library/re.html#flags</a></p></li>
+<li><p><strong>group</strong> (<em>int</em><em>, </em><em>optional</em>) – the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.</p></li>
+<li><p><strong>*reg_exprs</strong> (<em>str</em>) – the tuple of reg_exprs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.HLlangLexerFramework.add_identifier">
+<span class="sig-name descname"><span class="pre">add_identifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name='Identifier'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_cap_text=&lt;function</span> <span class="pre">LexerFramework.non_format_cap_text&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_flags=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_expr='[A-Za-z]\\\\w*'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#HLlangLexerFramework.add_identifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.HLlangLexerFramework.add_identifier" title="Link to this definition"></a></dt>
+<dd><p>Add identifier Lex item, and recomand to do this after add reserved words Lex item.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of Lex items</p></li>
+<li><p><strong>format_cap_text</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">[str],</span> <span class="pre">Any</span></code>, optional) – Callable of formatting the result of these reg_exprs</p></li>
+<li><p><strong>reg_flags</strong> (<em>optional</em>) – <a class="reference external" href="https://docs.python.org/3/library/re.html#flags">https://docs.python.org/3/library/re.html#flags</a></p></li>
+<li><p><strong>group</strong> (<em>int</em><em>, </em><em>optional</em>) – the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.</p></li>
+<li><p><strong>reg_expr</strong> (<em>str</em><em>, </em><em>optional</em>) – Regular Expression of Lex item</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.HLlangLexerFramework.add_operators">
+<span class="sig-name descname"><span class="pre">add_operators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name='Operator'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_cap_text=&lt;function</span> <span class="pre">LexerFramework.non_format_cap_text&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_flags=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*reg_exprs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#HLlangLexerFramework.add_operators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.HLlangLexerFramework.add_operators" title="Link to this definition"></a></dt>
+<dd><p>Add operators Lex items, and recomand to add composite operators first.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of Lex items</p></li>
+<li><p><strong>format_cap_text</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">[str],</span> <span class="pre">Any</span></code>, optional) – Callable of formatting the result of these reg_exprs</p></li>
+<li><p><strong>reg_flags</strong> (<em>optional</em>) – <a class="reference external" href="https://docs.python.org/3/library/re.html#flags">https://docs.python.org/3/library/re.html#flags</a></p></li>
+<li><p><strong>group</strong> (<em>int</em><em>, </em><em>optional</em>) – the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.</p></li>
+<li><p><strong>*reg_exprs</strong> (<em>str</em>) – the tuple of reg_exprs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.HLlangLexerFramework.add_res_words">
+<span class="sig-name descname"><span class="pre">add_res_words</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name='ResWord'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_cap_text=&lt;function</span> <span class="pre">LexerFramework.non_format_cap_text&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_flags=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*reg_exprs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#HLlangLexerFramework.add_res_words"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.HLlangLexerFramework.add_res_words" title="Link to this definition"></a></dt>
+<dd><p>Add reserved words Lex items, and recomand to do this before add indentifier Lex item.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of Lex items</p></li>
+<li><p><strong>format_cap_text</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">[str],</span> <span class="pre">Any</span></code>, optional) – Callable of formatting the result of these reg_exprs</p></li>
+<li><p><strong>reg_flags</strong> (<em>optional</em>) – <a class="reference external" href="https://docs.python.org/3/library/re.html#flags">https://docs.python.org/3/library/re.html#flags</a></p></li>
+<li><p><strong>group</strong> (<em>int</em><em>, </em><em>optional</em>) – the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.</p></li>
+<li><p><strong>*reg_exprs</strong> (<em>str</em>) – the tuple of reg_exprs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.HLlangLexerFramework.convert_float">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convert_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#HLlangLexerFramework.convert_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.HLlangLexerFramework.convert_float" title="Link to this definition"></a></dt>
+<dd><p>As Callable of formatting the result of these reg_exprs defined, deal with float words.
+:type s: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>
+:param s: string to be float
+:type s: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.HLlangLexerFramework.convert_int">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convert_int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#HLlangLexerFramework.convert_int"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.HLlangLexerFramework.convert_int" title="Link to this definition"></a></dt>
+<dd><p>As Callable of formatting the result of these reg_exprs defined, deal with int words.
+:type s: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>
+:param s: string to be int
+:type s: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.HLlangLexerFramework.drop_null">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">drop_null</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#HLlangLexerFramework.drop_null"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.HLlangLexerFramework.drop_null" title="Link to this definition"></a></dt>
+<dd><p>As Callable of formatting the result of these reg_exprs defined, deal with blank words.
+:type s: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>
+:param s: string to be drop
+:type s: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="lexer_framework.IlleagalNameException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lexer_framework.</span></span><span class="sig-name descname"><span class="pre">IlleagalNameException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#IlleagalNameException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.IlleagalNameException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Name of Item is illeagal</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.IlleagalNameException.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#IlleagalNameException.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.IlleagalNameException.__init__" title="Link to this definition"></a></dt>
+<dd><p>Construct menthod</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – error name</p></li>
+<li><p><strong>*args</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>) – for super class Exception</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="lexer_framework.LexItem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lexer_framework.</span></span><span class="sig-name descname"><span class="pre">LexItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_cap_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexItem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexItem" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The item of Lexer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self.name</strong> (<em>str</em>) – Name of Lex item</p></li>
+<li><p><strong>self.format_cap_tex</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">[str],</span> <span class="pre">Any</span></code>) – Callable of formatting the result of RegExpr</p></li>
+<li><p><strong>self.regex</strong> (<em>:obj:'re.Pattern'</em>) – Regex operation</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.LexItem.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_cap_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexItem.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexItem.__init__" title="Link to this definition"></a></dt>
+<dd><p>Construct method</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of Lex Item</p></li>
+<li><p><strong>format_cap_text</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">[str],</span> <span class="pre">Any</span></code>) – Callable of formatting the result of RegExpr</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#lexer_framework.IlleagalNameException" title="lexer_framework.IlleagalNameException"><strong>IlleagalNameException</strong></a> – when name start with ‘&#64;’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.LexItem.set_regex">
+<span class="sig-name descname"><span class="pre">set_regex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg_expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexItem.set_regex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexItem.set_regex" title="Link to this definition"></a></dt>
+<dd><p>Set the Regex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reg_expr</strong> (<em>str</em>) – Regular expression string</p></li>
+<li><p><strong>reg_flags</strong> – <a class="reference external" href="https://docs.python.org/3/library/re.html#flags">https://docs.python.org/3/library/re.html#flags</a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="lexer_framework.LexerFramework">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lexer_framework.</span></span><span class="sig-name descname"><span class="pre">LexerFramework</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lex_item_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[[]]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexerFramework"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexerFramework" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Framework of Lexer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self.lex_item_groups</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">List</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">List</span></code> of <a class="reference internal" href="#lexer_framework.LexItem" title="lexer_framework.LexItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LexItem</span></code></a>) – Groups of Lex Items in list</p></li>
+<li><p><strong>self.on_lexed_callback</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">[LexerResult],</span> <span class="pre">bool</span></code>) – the callback when single Lex result produced to judge whether accept this lex result.</p></li>
+<li><p><strong>self.on_accepted_callback</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">[LexerResult],</span> <span class="pre">None</span></code>) – the callback when single Lex result accepted by on_lexed_callback</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.LexerFramework.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lex_item_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[[]]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexerFramework.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexerFramework.__init__" title="Link to this definition"></a></dt>
+<dd><p>Construct menthod with LexItems</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lex_items</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">List</span></code> of <a class="reference internal" href="#lexer_framework.LexItem" title="lexer_framework.LexItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LexItem</span></code></a>, optional) – Prepared LexItemGroups</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.LexerFramework.add_lex_group">
+<span class="sig-name descname"><span class="pre">add_lex_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lex_items</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexerFramework.add_lex_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexerFramework.add_lex_group" title="Link to this definition"></a></dt>
+<dd><p>Add a new group of lex items.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lex_items</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">List</span></code> of <a class="reference internal" href="#lexer_framework.LexItem" title="lexer_framework.LexItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LexItem</span></code></a>, optional) – new group of lex items</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.LexerFramework.add_lex_item">
+<span class="sig-name descname"><span class="pre">add_lex_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_cap_text=&lt;staticmethod(&lt;function</span> <span class="pre">LexerFramework.non_format_cap_text&gt;)&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_flags=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group=0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexerFramework.add_lex_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexerFramework.add_lex_item" title="Link to this definition"></a></dt>
+<dd><p>Add a Lex item, and Lex with this order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of item</p></li>
+<li><p><strong>reg_expr</strong> (<em>str</em>) – Regular Expression of Lex, and automately add “^” at head</p></li>
+<li><p><strong>format_cap_text</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">[str],</span> <span class="pre">Any</span></code>, optional) – Callable of formatting the result of RegExpr</p></li>
+<li><p><strong>reg_flags</strong> (<em>optional</em>) – <a class="reference external" href="https://docs.python.org/3/library/re.html#flags">https://docs.python.org/3/library/re.html#flags</a></p></li>
+<li><p><strong>group</strong> (<em>int</em><em>, </em><em>optional</em>) – the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.LexerFramework.lex_stream">
+<span class="sig-name descname"><span class="pre">lex_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text_reader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexerFramework.lex_stream"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexerFramework.lex_stream" title="Link to this definition"></a></dt>
+<dd><p>Lex multiple lines string stream(io.StringIO) or file stream(with open() func), but as single line read-parttern. If formated value equal null, then drop it. By the way, please get the result from on_lexed_callback(for filting result) and set_on_accepted_callback(for getting result) one by one. For example, you can write a collector for receiving results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text_reader</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">io.IOBase</span></code>) – that multiple lines string will be Lexed</p></li>
+<li><p><strong>group</strong> (<em>int</em><em>, </em><em>optional</em>) – the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios..</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the count of results</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#lexer_framework.NoMatchException" title="lexer_framework.NoMatchException"><strong>NoMatchException</strong></a> – if input line cannot be matched by Lex items</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.LexerFramework.non_format_cap_text">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_format_cap_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexerFramework.non_format_cap_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexerFramework.non_format_cap_text" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.LexerFramework.set_on_accepted_callback">
+<span class="sig-name descname"><span class="pre">set_on_accepted_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexerFramework.set_on_accepted_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexerFramework.set_on_accepted_callback" title="Link to this definition"></a></dt>
+<dd><p>Set the callback when single Lex result accepted by on_lexed_callback, and you need to choice which parser framework you need in paring.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>1st</strong> (<a class="reference internal" href="#lexer_framework.LexerResult" title="lexer_framework.LexerResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LexerResult</span></code></a>) – one result of lex</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.LexerFramework.set_on_finished_callback">
+<span class="sig-name descname"><span class="pre">set_on_finished_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexerFramework.set_on_finished_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexerFramework.set_on_finished_callback" title="Link to this definition"></a></dt>
+<dd><p>Set the callback when all lex is done.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>1st</strong> (<em>int</em>) – the total number of lex results</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.LexerFramework.set_on_lexed_callback">
+<span class="sig-name descname"><span class="pre">set_on_lexed_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexerFramework.set_on_lexed_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexerFramework.set_on_lexed_callback" title="Link to this definition"></a></dt>
+<dd><p>Set the callback when single Lex result produced. Accept(return true) or not(return false) the single lex result.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>1st</strong> (<a class="reference internal" href="#lexer_framework.LexerResult" title="lexer_framework.LexerResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LexerResult</span></code></a>) – one result of lex</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="lexer_framework.LexerResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lexer_framework.</span></span><span class="sig-name descname"><span class="pre">LexerResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexerResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexerResult" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Lex Result</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self.index</strong> (<em>int</em>) – Order of Lex result</p></li>
+<li><p><strong>self.name</strong> (<em>str</em>) – Name of Lex Item</p></li>
+<li><p><strong>self.value</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>) – Value of Lex result</p></li>
+<li><p><strong>self.position</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Tuple</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">int,</span> <span class="pre">int</span></code>) – position of item (line, col)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.LexerResult.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#LexerResult.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.LexerResult.__init__" title="Link to this definition"></a></dt>
+<dd><p>Construct method</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<em>int</em>) – Order of Lex result</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of Lex Item</p></li>
+<li><p><strong>value</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>) – Value of Lex result</p></li>
+<li><p><strong>line</strong> (<em>int</em>) – line number</p></li>
+<li><p><strong>col</strong> (<em>int</em>) – column number</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="lexer_framework.NoMatchException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lexer_framework.</span></span><span class="sig-name descname"><span class="pre">NoMatchException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#NoMatchException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.NoMatchException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception produeced while no lex items in group match the rest text.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.NoMatchException.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#NoMatchException.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.NoMatchException.__init__" title="Link to this definition"></a></dt>
+<dd><p>Construct menthod</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>line</strong> (<em>int</em>) – error line number</p></li>
+<li><p><strong>col</strong> (<em>int</em>) – error column number</p></li>
+<li><p><strong>*args</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>) – for super class Exception</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="lexer_framework.ZeroLenghtMatchException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lexer_framework.</span></span><span class="sig-name descname"><span class="pre">ZeroLenghtMatchException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#ZeroLenghtMatchException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.ZeroLenghtMatchException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception produeced while match zero width</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lexer_framework.ZeroLenghtMatchException.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lexer_framework.html#ZeroLenghtMatchException.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lexer_framework.ZeroLenghtMatchException.__init__" title="Link to this definition"></a></dt>
+<dd><p>Construct menthod</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – error lex name</p></li>
+<li><p><strong>pattern</strong> (<em>str</em>) – error reg pattern</p></li>
+<li><p><strong>*args</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>) – for super class Exception</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to CompilerFramework-Python’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, 刘迅承.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
