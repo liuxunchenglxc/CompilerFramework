@@ -7,8 +7,8 @@
 ## schedule
 ### Done
 - LexerFramework class
-### Todo
 - HLlangLexerFramework class
+### Todo
 - ParserFramework
 - Something more...
 
