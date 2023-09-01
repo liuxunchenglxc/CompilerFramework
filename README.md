@@ -1,19 +1,40 @@
 # CompilerFramework
+一个具有完整词法分析与支持输入生成式的语法分析的编译器框架，支持在语法分析部分添加语义分析回调函数以利用语法分析的结果。
+
+A Compiler Framework with complete lexical analysis and production supportted parsing analysis, which is supportted to add the callback funtion to parsing analysis for semantic analysis.
+
+该框架具有Python 3与C#两个语言版本。C#版本开发于2019年并且已经停止维护。Python 3版本已经重现了C#版本的全部基础功能，并且更多功能正在添加中。
+
+This framework has both Python 3 and C# versions. C# version has stopped maintenance. Python 3 version has included all essential functions in C# version, and more functions are incoming.
 
 # Python Version
-目前正在写python的版本，还没有写完。写完了我会更新ReadMe.md。
+目前已经写完了之前已经完善的词法和语法相关的类。C#版提供的基础功能Python版已经都有了。至于Demo和Unit Test有空了再写。
+
+At present, the author completed the previous classes of Lexer and Parser in C# version. The basic function has been in Python version. As for Demo and Unit Test, the author will code when has free time.
+
 - **开发人员**: `刘迅承`
+- **Author**: `Xuncheng Liu`
 - **开发语言**: `Python 3`
+- **Programming Language**: `Python 3`
+- **项目依赖**: 只有`Python标准库`
+- **Dependence**: Only the `Python Standard Library`
+
 ## Schedule
+
 ### Done
-- LexerFramework class
-- HLlangLexerFramework class
-- Lexer Docs
+- [x] LexerFramework class
+- [x] HLlangLexerFramework class
+- [x] Lexer Docs
+- [x] ParserFramework
+- [x] Parser Docs
+
 ### Todo
-- ParserFramework
-- Something more...
+- [ ] BUParserFramework 自底向上的语法框架
+- [ ] Something more...
+
 ## Docs
 https://compilerframework.readthedocs.io/en/latest/index.html
+
 ## Docstring Format
 Author uses the Numpy format as Sphinx docs shown.
 
