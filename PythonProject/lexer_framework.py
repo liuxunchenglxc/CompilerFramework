@@ -29,10 +29,10 @@ class IlleagalNameException(Exception):
 
         Parameters
         ----------
-        name: str
-         error name
-        *args: object
-         for super class Exception
+        name : str
+            error name
+        *args
+            for super class Exception
         """
         super().__init__(*args)
         self.name = name
@@ -51,12 +51,12 @@ class ZeroLenghtMatchException(Exception):
 
         Parameters
         ----------
-        name: str
-         error lex name
-        pattern: str
-         error reg pattern
-        *args: object
-         for super class Exception
+        name : str
+            error lex name
+        pattern : str
+            error reg pattern
+        *args
+            for super class Exception
         """
         super().__init__(*args)
         self.name = name
@@ -76,10 +76,10 @@ class GroupNumException(Exception):
 
         Parameters
         ----------
-        group: int
-         error group index
-        *args: object
-         for super class Exception
+        group : int
+            error group index
+        *args
+            for super class Exception
         """
         super().__init__(*args)
         self.group = group
@@ -98,12 +98,12 @@ class NoMatchException(Exception):
 
         Parameters
         ----------
-        line: int
-         error line number
-        col: int
-         error column number
-        *args: object
-         for super class Exception
+        line : int
+            error line number
+        col : int
+            error column number
+        *args
+            for super class Exception
         """
         super().__init__(*args)
         self.line = line
@@ -116,14 +116,14 @@ class LexItem:
     """
     The item of Lexer
 
-    Members
+    Parameters
     ----------
-    self.name: str
-     Name of Lex item
-    self.format_cap_tex:  Callable[[str], Any]
-     Callable of formatting the result of RegExpr
-    self.regex: re.Pattern
-     Regex operation
+    self.name : str
+        Name of Lex item
+    self.format_cap_tex : :obj:`Callable` of :obj:`[str], Any`
+        Callable of formatting the result of RegExpr
+    self.regex : :obj:'re.Pattern'
+        Regex operation
     """
 
     def __init__(self, name: str, format_cap_text: Callable[[str], Any]):
@@ -132,15 +132,15 @@ class LexItem:
          
         Parameters
         ----------
-        name: str
-         Name of Lex Item
-        format_cap_text : Callable[[str], Any]
-         Callable of formatting the result of RegExpr
+        name : str
+            Name of Lex Item
+        format_cap_text : :obj:`Callable` of :obj:`[str], Any`
+            Callable of formatting the result of RegExpr
          
         Raises
         ------
         IlleagalNameException
-         when name start with '@'
+            when name start with '@'
         """
         if re.match("^@.*", name) is not None:
             raise IlleagalNameException(name)
@@ -153,10 +153,10 @@ class LexItem:
          
         Parameters
         ----------
-        reg_expr: str
-         Regular expression string
-        reg_flags:
-         https://docs.python.org/3/library/re.html#flags
+        reg_expr : str
+            Regular expression string
+        reg_flags
+            https://docs.python.org/3/library/re.html#flags
         """
         self.regex = re.compile(reg_expr, reg_flags)
 
@@ -164,16 +164,16 @@ class LexerResult:
     """
     Lex Result
 
-    Members
+    Parameters
     ----------
-    self.index: int
-     Order of Lex result
-    self.name: str
-     Name of Lex Item
-    self.value: Any
-     Value of Lex result
-    self.position: Tuple[int, int]
-     position of item (line, col)
+    self.index : int
+        Order of Lex result
+    self.name : str
+        Name of Lex Item
+    self.value : :obj:`Any`
+        Value of Lex result
+    self.position : :obj:`Tuple` of :obj:`int, int`
+        position of item (line, col)
     """
 
     def __init__(self, index: int, name: str, value: Any, line: int, col: int):
@@ -182,16 +182,16 @@ class LexerResult:
          
         Parameters
         ----------
-        index: int
-         Order of Lex result
-        name: str
-         Name of Lex Item
-        value: Any
-         Value of Lex result
-        line: int
-         line number
-        col: int
-         column number
+        index : int
+            Order of Lex result
+        name : str
+            Name of Lex Item
+        value : :obj:`Any`
+            Value of Lex result
+        line : int
+            line number
+        col : int
+            column number
         """
         self.index = index
         self.name = name
@@ -202,14 +202,14 @@ class LexerFramework:
     """
     Framework of Lexer
     
-    Members
+    Parameters
     ----------
-    self.lex_item_groups: List[List[LexItem]]
-     Groups of Lex Items in list
-    self.on_lexed_callback: Callable[[LexerResult], bool]
-     the callback when single Lex result produced to judge whether accept this lex result.
-    self.on_accepted_callback: Callable[[LexerResult]
-     the callback when single Lex result accepted by on_lexed_callback
+    self.lex_item_groups : :obj:`List` of :obj:`List` of :obj:`LexItem`
+        Groups of Lex Items in list
+    self.on_lexed_callback: :obj:`Callable` of :obj:`[LexerResult], bool`
+        the callback when single Lex result produced to judge whether accept this lex result.
+    self.on_accepted_callback: :obj:`Callable` of :obj:`[LexerResult], None`
+        the callback when single Lex result accepted by on_lexed_callback
     """
 
     def __init__(self, lex_item_groups: List[List[LexItem]] = [[]]):
@@ -218,8 +218,8 @@ class LexerFramework:
          
         Parameters
         ----------
-        lex_items: List[LexItem]
-         Prepared LexItemGroups
+        lex_items : :obj:`List` of :obj:`LexItem`, optional
+            Prepared LexItemGroups
         """
         self.lex_item_groups = lex_item_groups
 
@@ -229,8 +229,8 @@ class LexerFramework:
 
         Parameters
         ----------
-        lex_items: List[LexItem]
-         new group of lex items
+        lex_items : :obj:`List` of :obj:`LexItem`, optional
+            new group of lex items
         """
         self.lex_item_groups.append(lex_items)
 
@@ -244,16 +244,16 @@ class LexerFramework:
          
         Parameters
         ----------
-        name: str
-         Name of item
-        reg_expr: str
-         Regular Expression of Lex, and automately add "^" at head
-        format_cap_text: Callable[[str], Any]
-         Callable of formatting the result of RegExpr
-        reg_flags:
-         https://docs.python.org/3/library/re.html#flags
-        group: int
-         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
+        name : str
+            Name of item
+        reg_expr : str
+            Regular Expression of Lex, and automately add "^" at head
+        format_cap_text : :obj:`Callable` of :obj:`[str], Any`, optional
+            Callable of formatting the result of RegExpr
+        reg_flags : optional
+            https://docs.python.org/3/library/re.html#flags
+        group : int, optional
+            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
         """
         if name is None:
             return
@@ -271,10 +271,10 @@ class LexerFramework:
         """
         Set the callback when single Lex result produced. Accept(return true) or not(return false) the single lex result.
         
-        Callback Parameters
+        Parameters
         ----------
-        1: LexerResult
-         one result of lex
+        1st : :obj:`LexerResult`
+            one result of lex
         """
         self.on_lexed_callback = callback
 
@@ -282,10 +282,10 @@ class LexerFramework:
         """
         Set the callback when single Lex result accepted by on_lexed_callback, and you need to choice which parser framework you need in paring.
         
-        Callback Parameters
+        Parameters
         ----------
-        1: LexerResult
-         one result of lex
+        1st : :obj:`LexerResult`
+            one result of lex
         """
         self.on_accepted_callback = callback
 
@@ -293,10 +293,10 @@ class LexerFramework:
         """
         Set the callback when all lex is done.
         
-        Callback Parameters
+        Parameters
         ----------
-        1: int
-         the total number of lex results
+        1st : int
+            the total number of lex results
         """
         self.on_finished_callback = callback
 
@@ -306,26 +306,26 @@ class LexerFramework:
          
         Parameters
         ----------
-        s: str
-         that string will be Lexed
-        lex_item: LexItem
-         Lex item for Lex string
-        index: int
-         index of Lex result
-        line: int
-         line number
-        col: int
-         column number
+        s : str
+            that string will be Lexed
+        lex_item : :obj:`LexItem`
+            Lex item for Lex string
+        index : int
+            index of Lex result
+        line : int
+            line number
+        col : int
+            column number
 
         Returns
         -------
-        Tuple[str, int]
-         new trimed string and the new index
+        :obj:`Tuple` of :obj:`str, int`
+            new trimed string and the new index
 
         Raises
         ------
         ZeroLenghtMatchException
-         when match the zero length word
+            when match the zero length word
         """
         match = lex_item.regex.match(s)
         if match is None:
@@ -348,20 +348,20 @@ class LexerFramework:
          
         Parameters
         ----------
-        s: str
-         that multiple lines string will be Lexed
-        group: int
-         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios..
+        text_reader : :obj:`io.IOBase`
+            that multiple lines string will be Lexed
+        group : int, optional
+            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios..
 
         Returns
         -------
         int
-         the count of results
+            the count of results
 
         Raises
         ------
         NoMatchException
-         if input line cannot be matched by Lex items
+            if input line cannot be matched by Lex items
         """
         if self.lex_item_groups[group] is None:
             return 0
@@ -398,8 +398,8 @@ class HLlangLexerFramework(LexerFramework):
          
         Parameters
         ----------
-        lex_items: List[LexItem]
-         Prepared LexItemGroups
+        lex_items : :obj:`List` of :obj:`LexItem`, optional
+            Prepared LexItemGroups
         """
         super().__init__(lex_item_groups)
 
@@ -410,16 +410,16 @@ class HLlangLexerFramework(LexerFramework):
 
         Parameters
         ----------
-        name: str
-         Name of Lex items
-        format_cap_text: Callable[[str], Any]
-         Callable of formatting the result of these reg_exprs
-        reg_flags:
-         https://docs.python.org/3/library/re.html#flags
-        group: int
-         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
-        *reg_exprs: str
-         the tuple of reg_exprs
+        name : str, optional
+            Name of Lex items
+        format_cap_text : :obj:`Callable` of :obj:`[str], Any`, optional
+            Callable of formatting the result of these reg_exprs
+        reg_flags : optional
+            https://docs.python.org/3/library/re.html#flags
+        group : int, optional
+            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
+        *reg_exprs : str
+            the tuple of reg_exprs
         """
         for reg_expr in reg_exprs:
             if reg_expr[-8:] != "(?=\\W|$)":
@@ -433,16 +433,16 @@ class HLlangLexerFramework(LexerFramework):
 
         Parameters
         ----------
-        name: str
-         Name of Lex items
-        format_cap_text: Callable[[str], Any]
-         Callable of formatting the result of these reg_exprs
-        reg_flags:
-         https://docs.python.org/3/library/re.html#flags
-        group: int
-         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
-        reg_expr: str
-         Regular Expression of Lex item
+        name : str, optional
+            Name of Lex items
+        format_cap_text: :obj:`Callable` of :obj:`[str], Any`, optional
+            Callable of formatting the result of these reg_exprs
+        reg_flags : optional
+            https://docs.python.org/3/library/re.html#flags
+        group: int, optional
+            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
+        reg_expr : str, optional
+            Regular Expression of Lex item
         """
         self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
 
@@ -453,16 +453,16 @@ class HLlangLexerFramework(LexerFramework):
 
         Parameters
         ----------
-        name: str
-         Name of Lex items
-        format_cap_text: Callable[[str], Any]
-         Callable of formatting the result of these reg_exprs
-        reg_flags:
-         https://docs.python.org/3/library/re.html#flags
-        group: int
-         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
-        *reg_exprs: str
-         the tuple of reg_exprs
+        name : str, optional
+            Name of Lex items
+        format_cap_text : :obj:`Callable` of :obj:`[str], Any`, optional
+            Callable of formatting the result of these reg_exprs
+        reg_flags : optional
+            https://docs.python.org/3/library/re.html#flags
+        group : int, optional
+            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
+        *reg_exprs : str
+            the tuple of reg_exprs
         """
         for reg_expr in reg_exprs:
             self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
@@ -474,16 +474,16 @@ class HLlangLexerFramework(LexerFramework):
 
         Parameters
         ----------
-        name: str
-         Name of Lex items
-        format_cap_text: Callable[[str], Any]
-         Callable of formatting the result of these reg_exprs
-        reg_flags:
-         https://docs.python.org/3/library/re.html#flags
-        group: int
-         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
-        *reg_exprs: str
-         the tuple of reg_exprs
+        name : str, optional
+            Name of Lex items
+        format_cap_text : :obj:`Callable` of :obj:`[str], Any`, optional
+            Callable of formatting the result of these reg_exprs
+        reg_flags : optional
+            https://docs.python.org/3/library/re.html#flags
+        group : int, optional
+            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
+        *reg_exprs : str
+            the tuple of reg_exprs
         """
         for reg_expr in reg_exprs:
             self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
@@ -495,16 +495,18 @@ class HLlangLexerFramework(LexerFramework):
 
         Parameters
         ----------
-        name: str
-         Name of Lex items
-        format_cap_text: Callable[[str], Any]
-         Callable of formatting the result of these reg_exprs
-        reg_flags:
-         https://docs.python.org/3/library/re.html#flags
-        group: int
-         the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
-        *reg_exprs: str
-         the tuple of reg_exprs
+        name : str, optional
+            Name of Lex items
+        format_cap_text : :obj:`Callable` of :obj:`[str], Any`, optional
+            Callable of formatting the result of these reg_exprs
+        reg_flags : optional
+            https://docs.python.org/3/library/re.html#flags
+        group : int, optional
+            the Lex Group, for advanced usage, eg. you can define multiple groups and use LexerFramework for different scenarios.
+        is_add_zero_width_assertion : bool, optional
+            add zero width assertion at end or not
+        *reg_exprs : str
+            the tuple of reg_exprs
         """
         for reg_expr in reg_exprs:
             if reg_expr[-8:] != "(?=\\W|$)" and is_add_zero_width_assertion:
@@ -518,8 +520,8 @@ class HLlangLexerFramework(LexerFramework):
         As Callable of formatting the result of these reg_exprs defined, deal with blank words.
         Parameters
         ----------
-        s: str
-         string to be drop
+        s : str
+            string to be drop
         """
         pass
 
@@ -530,8 +532,8 @@ class HLlangLexerFramework(LexerFramework):
         As Callable of formatting the result of these reg_exprs defined, deal with int words.
         Parameters
         ----------
-        s: str
-         string to be int
+        s : str
+            string to be int
         """
         return int(s)
 
@@ -542,8 +544,8 @@ class HLlangLexerFramework(LexerFramework):
         As Callable of formatting the result of these reg_exprs defined, deal with float words.
         Parameters
         ----------
-        s: str
-         string to be float
+        s : str
+            string to be float
         """
         return float(s)
 
