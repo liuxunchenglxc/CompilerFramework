@@ -15,12 +15,11 @@
 #    along with this program.If not, see<https://www.gnu.org/licenses/>.
 
 from typing import Callable, Any, List, Tuple, Dict
-import re
-import io
 import time
 from queue import LifoQueue
 
 from lexer_framework import LexerResult
+
 
 class ParseUnit:
     """
@@ -39,6 +38,7 @@ class ParseUnit:
     self.unit_property : :obj:`Any`
         reserved place for advanced usage
     """
+
     def __init__(self, name: str, parse_units: List, position: Tuple[int, int], value: Any, unit_property: Any) -> None:
         """
         Unit of Parse, such as phrase.
@@ -62,11 +62,12 @@ class ParseUnit:
         self.value = value
         self.unit_property = unit_property
 
-    def is_terminator() -> bool:
+    def is_terminator(self) -> bool:
         """
         is terminator, if no children.
         """
         return len(self.parse_units) == 0
+
 
 class Production:
     """
@@ -83,6 +84,7 @@ class Production:
     self.attr : :obj:`Any`
         attr for advansing usage
     """
+
     def __init__(self, pre: str, sufs: List[str], semant_callback: Callable[[List[ParseUnit]], Any], attr: Any) -> None:
         """
         the production of grammar
@@ -102,6 +104,7 @@ class Production:
         self.sufs = sufs
         self.semant_callback = semant_callback
         self.attr = attr
+
 
 class ParseIndexException(Exception):
     """
@@ -128,6 +131,7 @@ class ParseIndexException(Exception):
     def __str__(self) -> str:
         return f"Index Error: Index should be {self.index_p} instead of {self.index_l}"
 
+
 class WaitTimeoutException(Exception):
     """
     Exception when `parse_lex_unit_async` waits timeout
@@ -153,6 +157,7 @@ class WaitTimeoutException(Exception):
     def __str__(self) -> str:
         return f"Wait Timeout: Index processing: {self.index_p}, this index is {self.index_l}"
 
+
 class ProductSentenceException(Exception):
     """
     Exception when `product_sentence` is illeagal.
@@ -175,6 +180,7 @@ class ProductSentenceException(Exception):
     def __str__(self) -> str:
         return f"ProductSentence Error: sentence \"{self.product_sentence}\" is illeagal."
 
+
 class ParserFramework:
     """
     The very base framework of parsing, provide very base methods for all kind of parsing.
@@ -190,12 +196,13 @@ class ParserFramework:
     self.semant_callback_dict : :obj:`dict` of str to :obj:`Callable` of :obj:`list` of :obj:`ParseUnit` with return of :obj:`Any`
         Semant Callback Dictionary for string convert to callback.
     """
-    
+
     def __init__(self) -> None:
         self._index = 0
         self._stack = LifoQueue()
         self.productions: List[Production] = []
-        self.semant_callback_dict: Dict[str, Callable[[List[ParseUnit]], Any]] = {}
+        self.semant_callback_dict: Dict[str,
+                                        Callable[[List[ParseUnit]], Any]] = {}
 
     def parse(self, parse_unit: ParseUnit) -> None:
         """
@@ -230,7 +237,8 @@ class ParserFramework:
         if lexer_result.index != self._index:
             raise ParseIndexException(self._index, lexer_result.index)
         # transfer to parse unit
-        parse_unit = ParseUnit(lexer_result.name, [], lexer_result.position, lexer_result.value, None)
+        parse_unit = ParseUnit(lexer_result.name, [],
+                               lexer_result.position, lexer_result.value, None)
         # to parse it
         self.parse(parse_unit)
         # move to next
@@ -254,7 +262,7 @@ class ParserFramework:
         """
         # The author changed the impl of ansyc task instead of C# version
         # wait for index, this can be cause dead loop if you DO NOT correctly use this framework.
-        timeout = 100 * timeout # 10 minus default
+        timeout = 100 * timeout  # 10 minus default
         now = 0
         while lexer_result.index != self._index:
             time.sleep(0.01)
@@ -263,7 +271,8 @@ class ParserFramework:
                 raise WaitTimeoutException(self._index, lexer_result.index)
         # now is this index time
         # transfer to parse unit
-        parse_unit = ParseUnit(lexer_result.name, [], lexer_result.position, lexer_result.value, None)
+        parse_unit = ParseUnit(lexer_result.name, [],
+                               lexer_result.position, lexer_result.value, None)
         # to parse it
         self.parse(parse_unit)
         # move to next
@@ -382,4 +391,3 @@ class ParserFramework:
         """
         for ps in product_sentences:
             self.add_production_by_str(ps)
-
