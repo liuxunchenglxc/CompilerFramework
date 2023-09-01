@@ -526,6 +526,7 @@ class HLlangLexerFramework(LexerFramework):
     def drop_null(s: str) -> None:
         """
         As Callable of formatting the result of these reg_exprs defined, deal with blank words.
+
         Parameters
         ----------
         s : str
@@ -537,6 +538,7 @@ class HLlangLexerFramework(LexerFramework):
     def convert_int(s: str) -> int:
         """
         As Callable of formatting the result of these reg_exprs defined, deal with int words.
+
         Parameters
         ----------
         s : str
@@ -548,6 +550,7 @@ class HLlangLexerFramework(LexerFramework):
     def convert_float(s: str) -> float:
         """
         As Callable of formatting the result of these reg_exprs defined, deal with float words.
+
         Parameters
         ----------
         s : str
