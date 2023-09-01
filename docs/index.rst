@@ -8,9 +8,10 @@ Welcome to CompilerFramework-Python's documentation!
 
 .. toctree::
    :maxdepth: 4
-   :caption: Contents:
+   :caption: Contents
 
    lexer_framework
+   parser_framework
 
 
 Indices and tables
