@@ -18,6 +18,7 @@ from typing import Callable, Any, List, Tuple
 import re
 import io
 
+
 class IlleagalNameException(Exception):
     """
     Name of Item is illeagal
@@ -36,9 +37,10 @@ class IlleagalNameException(Exception):
         """
         super().__init__(*args)
         self.name = name
-    
+
     def __str__(self):
         return f"Illeagal Name: {self.name}. Name cannot start with '@'."
+
 
 class ZeroLenghtMatchException(Exception):
     """
@@ -61,9 +63,10 @@ class ZeroLenghtMatchException(Exception):
         super().__init__(*args)
         self.name = name
         self.pattern = pattern
-    
+
     def __str__(self):
         return f"Lex Error: Zero Length String Matched, indicating end-less loop, by Name: {self.name}, RegExpr: {self.pattern}"
+
 
 class GroupNumException(Exception):
     """
@@ -83,9 +86,10 @@ class GroupNumException(Exception):
         """
         super().__init__(*args)
         self.group = group
-    
+
     def __str__(self):
         return f"AddLexItem Error: illeagal Lex group number: {self.group}"
+
 
 class NoMatchException(Exception):
     """
@@ -108,9 +112,10 @@ class NoMatchException(Exception):
         super().__init__(*args)
         self.line = line
         self.col = col
-    
+
     def __str__(self):
         return f"Lex Error: Cannot match words at line {self.line} and column {self.col}"
+
 
 class LexItem:
     """
@@ -129,14 +134,14 @@ class LexItem:
     def __init__(self, name: str, format_cap_text: Callable[[str], Any]):
         """
         Construct method
-         
+
         Parameters
         ----------
         name : str
             Name of Lex Item
         format_cap_text : :obj:`Callable` of :obj:`[str], Any`
             Callable of formatting the result of RegExpr
-         
+
         Raises
         ------
         IlleagalNameException
@@ -147,10 +152,10 @@ class LexItem:
         self.name = name
         self.format_cap_text = format_cap_text
 
-    def set_regex(self, reg_expr: str, reg_flags = 0) -> None:
+    def set_regex(self, reg_expr: str, reg_flags=0) -> None:
         """
         Set the Regex
-         
+
         Parameters
         ----------
         reg_expr : str
@@ -159,6 +164,7 @@ class LexItem:
             https://docs.python.org/3/library/re.html#flags
         """
         self.regex = re.compile(reg_expr, reg_flags)
+
 
 class LexerResult:
     """
@@ -179,7 +185,7 @@ class LexerResult:
     def __init__(self, index: int, name: str, value: Any, line: int, col: int):
         """
         Construct method
-         
+
         Parameters
         ----------
         index : int
@@ -198,10 +204,11 @@ class LexerResult:
         self.value = value
         self.position = (line, col)
 
+
 class LexerFramework:
     """
     Framework of Lexer
-    
+
     Parameters
     ----------
     self.lex_item_groups : :obj:`List` of :obj:`List` of :obj:`LexItem`
@@ -215,7 +222,7 @@ class LexerFramework:
     def __init__(self, lex_item_groups: List[List[LexItem]] = [[]]):
         """
         Construct menthod with LexItems
-         
+
         Parameters
         ----------
         lex_items : :obj:`List` of :obj:`LexItem`, optional
@@ -238,10 +245,10 @@ class LexerFramework:
     def non_format_cap_text(s: str) -> Any:
         return s
 
-    def add_lex_item(self, name: str, reg_expr: str, format_cap_text: Callable[[str], Any] = non_format_cap_text, reg_flags = 0, group: int = 0) -> None:
+    def add_lex_item(self, name: str, reg_expr: str, format_cap_text: Callable[[str], Any] = non_format_cap_text, reg_flags=0, group: int = 0) -> None:
         """
         Add a Lex item, and Lex with this order.
-         
+
         Parameters
         ----------
         name : str
@@ -270,7 +277,7 @@ class LexerFramework:
     def set_on_lexed_callback(self, callback: Callable[[LexerResult], bool]) -> None:
         """
         Set the callback when single Lex result produced. Accept(return true) or not(return false) the single lex result.
-        
+
         Parameters
         ----------
         1st : :obj:`LexerResult`
@@ -281,7 +288,7 @@ class LexerFramework:
     def set_on_accepted_callback(self, callback: Callable[[LexerResult], None]) -> None:
         """
         Set the callback when single Lex result accepted by on_lexed_callback, and you need to choice which parser framework you need in paring.
-        
+
         Parameters
         ----------
         1st : :obj:`LexerResult`
@@ -292,7 +299,7 @@ class LexerFramework:
     def set_on_finished_callback(self, callback: Callable[[int], None]) -> None:
         """
         Set the callback when all lex is done.
-        
+
         Parameters
         ----------
         1st : int
@@ -303,7 +310,7 @@ class LexerFramework:
     def _lex_single_line(self, s: str, lex_item: LexItem, index: int, line: int, col: int) -> Tuple[str, int]:
         """
         Lex a single line string, if formated value equal null, then drop it and return true.
-         
+
         Parameters
         ----------
         s : str
@@ -332,7 +339,8 @@ class LexerFramework:
             return s, index
         result = match.group()
         if result is None:
-            raise ZeroLenghtMatchException(lex_item.name, lex_item.regex.pattern)
+            raise ZeroLenghtMatchException(
+                lex_item.name, lex_item.regex.pattern)
         value = lex_item.format_cap_text(result)
         if value:
             lexer_result = LexerResult(index, lex_item.name, value, line, col)
@@ -345,7 +353,7 @@ class LexerFramework:
     def lex_stream(self, text_reader: io.IOBase, group: int = 0) -> int:
         """
         Lex multiple lines string stream(io.StringIO) or file stream(with open() func), but as single line read-parttern. If formated value equal null, then drop it. By the way, please get the result from on_lexed_callback(for filting result) and set_on_accepted_callback(for getting result) one by one. For example, you can write a collector for receiving results.
-         
+
         Parameters
         ----------
         text_reader : :obj:`io.IOBase`
@@ -377,7 +385,8 @@ class LexerFramework:
                 is_match = False
                 col = col_num - len(line_text) + 1
                 for lex_item in self.lex_item_groups[group]:
-                    line_text, new_index = self._lex_single_line(line_text, lex_item, index, line, col)
+                    line_text, new_index = self._lex_single_line(
+                        line_text, lex_item, index, line, col)
                     if new_index != index:
                         is_match = True
                         index = new_index
@@ -387,15 +396,16 @@ class LexerFramework:
         self.on_finished_callback(index)
         return index
 
+
 class HLlangLexerFramework(LexerFramework):
     """
     High Level programing language (HLlang) Lexer framework
     """
-    
+
     def __init__(self, lex_item_groups: List[List[LexItem]] = [[]]):
         """
         Construct menthod with LexItems
-         
+
         Parameters
         ----------
         lex_items : :obj:`List` of :obj:`LexItem`, optional
@@ -403,8 +413,7 @@ class HLlangLexerFramework(LexerFramework):
         """
         super().__init__(lex_item_groups)
 
-    
-    def add_res_words(self, name: str = "ResWord", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags = 0, group: int = 0, *reg_exprs: str) -> None:
+    def add_res_words(self, name: str = "ResWord", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags=0, group: int = 0, *reg_exprs: str) -> None:
         """
         Add reserved words Lex items, and recomand to do this before add indentifier Lex item.
 
@@ -424,10 +433,10 @@ class HLlangLexerFramework(LexerFramework):
         for reg_expr in reg_exprs:
             if reg_expr[-8:] != "(?=\\W|$)":
                 reg_expr = reg_expr + "(?=\\W|$)"
-            self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
-    
-    
-    def add_identifier(self, name: str = "Identifier", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags = 0, group: int = 0, reg_expr: str = "[A-Za-z]\\w*") -> None:
+            self.add_lex_item(
+                name, reg_expr, format_cap_text, reg_flags, group)
+
+    def add_identifier(self, name: str = "Identifier", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags=0, group: int = 0, reg_expr: str = "[A-Za-z]\\w*") -> None:
         """
         Add identifier Lex item, and recomand to do this after add reserved words Lex item.
 
@@ -446,8 +455,7 @@ class HLlangLexerFramework(LexerFramework):
         """
         self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
 
-    
-    def add_operators(self, name: str = "Operator", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags = 0, group: int = 0, *reg_exprs: str) -> None:
+    def add_operators(self, name: str = "Operator", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags=0, group: int = 0, *reg_exprs: str) -> None:
         """
         Add operators Lex items, and recomand to add composite operators first.
 
@@ -465,10 +473,10 @@ class HLlangLexerFramework(LexerFramework):
             the tuple of reg_exprs
         """
         for reg_expr in reg_exprs:
-            self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
+            self.add_lex_item(
+                name, reg_expr, format_cap_text, reg_flags, group)
 
-    
-    def add_delimiters(self, name: str = "Delimiter", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags = 0, group: int = 0, *reg_exprs: str) -> None:
+    def add_delimiters(self, name: str = "Delimiter", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags=0, group: int = 0, *reg_exprs: str) -> None:
         """
         Add Delimiters Lex items, and recomand to add composite delimiters first.
 
@@ -486,10 +494,10 @@ class HLlangLexerFramework(LexerFramework):
             the tuple of reg_exprs
         """
         for reg_expr in reg_exprs:
-            self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
+            self.add_lex_item(
+                name, reg_expr, format_cap_text, reg_flags, group)
 
-
-    def add_constants(self, name: str = "Constant", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags = 0, group: int = 0, is_add_zero_width_assertion: bool = True, *reg_exprs: str) -> None:
+    def add_constants(self, name: str = "Constant", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags=0, group: int = 0, is_add_zero_width_assertion: bool = True, *reg_exprs: str) -> None:
         """
         Add Constants Lex items, and recomand to add composite constants first.
 
@@ -511,8 +519,8 @@ class HLlangLexerFramework(LexerFramework):
         for reg_expr in reg_exprs:
             if reg_expr[-8:] != "(?=\\W|$)" and is_add_zero_width_assertion:
                 reg_expr = reg_expr + "(?=\\W|$)"
-            self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
-
+            self.add_lex_item(
+                name, reg_expr, format_cap_text, reg_flags, group)
 
     @staticmethod
     def drop_null(s: str) -> None:
@@ -525,7 +533,6 @@ class HLlangLexerFramework(LexerFramework):
         """
         pass
 
-
     @staticmethod
     def convert_int(s: str) -> int:
         """
@@ -537,7 +544,6 @@ class HLlangLexerFramework(LexerFramework):
         """
         return int(s)
 
-
     @staticmethod
     def convert_float(s: str) -> float:
         """
@@ -548,4 +554,3 @@ class HLlangLexerFramework(LexerFramework):
             string to be float
         """
         return float(s)
-
