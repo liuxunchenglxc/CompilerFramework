@@ -242,10 +242,10 @@ class LexerFramework:
         self.lex_item_groups.append(lex_items)
 
     @staticmethod
-    def non_format_cap_text(s: str) -> Any:
+    def none_format_cap_text(s: str) -> Any:
         return s
 
-    def add_lex_item(self, name: str, reg_expr: str, format_cap_text: Callable[[str], Any] = non_format_cap_text, reg_flags=0, group: int = 0) -> None:
+    def add_lex_item(self, name: str, reg_expr: str, format_cap_text: Callable[[str], Any] = none_format_cap_text, reg_flags=0, group: int = 0) -> None:
         """
         Add a Lex item, and Lex with this order.
 
@@ -413,7 +413,7 @@ class HLlangLexerFramework(LexerFramework):
         """
         super().__init__(lex_item_groups)
 
-    def add_res_words(self, name: str = "ResWord", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags=0, group: int = 0, *reg_exprs: str) -> None:
+    def add_res_words(self, name: str = "ResWord", format_cap_text: Callable[[str], Any] = LexerFramework.none_format_cap_text, reg_flags=0, group: int = 0, *reg_exprs: str) -> None:
         """
         Add reserved words Lex items, and recomand to do this before add indentifier Lex item.
 
@@ -436,7 +436,7 @@ class HLlangLexerFramework(LexerFramework):
             self.add_lex_item(
                 name, reg_expr, format_cap_text, reg_flags, group)
 
-    def add_identifier(self, name: str = "Identifier", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags=0, group: int = 0, reg_expr: str = "[A-Za-z]\\w*") -> None:
+    def add_identifier(self, name: str = "Identifier", format_cap_text: Callable[[str], Any] = LexerFramework.none_format_cap_text, reg_flags=0, group: int = 0, reg_expr: str = "[A-Za-z]\\w*") -> None:
         """
         Add identifier Lex item, and recomand to do this after add reserved words Lex item.
 
@@ -455,7 +455,7 @@ class HLlangLexerFramework(LexerFramework):
         """
         self.add_lex_item(name, reg_expr, format_cap_text, reg_flags, group)
 
-    def add_operators(self, name: str = "Operator", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags=0, group: int = 0, *reg_exprs: str) -> None:
+    def add_operators(self, name: str = "Operator", format_cap_text: Callable[[str], Any] = LexerFramework.none_format_cap_text, reg_flags=0, group: int = 0, *reg_exprs: str) -> None:
         """
         Add operators Lex items, and recomand to add composite operators first.
 
@@ -476,7 +476,7 @@ class HLlangLexerFramework(LexerFramework):
             self.add_lex_item(
                 name, reg_expr, format_cap_text, reg_flags, group)
 
-    def add_delimiters(self, name: str = "Delimiter", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags=0, group: int = 0, *reg_exprs: str) -> None:
+    def add_delimiters(self, name: str = "Delimiter", format_cap_text: Callable[[str], Any] = LexerFramework.none_format_cap_text, reg_flags=0, group: int = 0, *reg_exprs: str) -> None:
         """
         Add Delimiters Lex items, and recomand to add composite delimiters first.
 
@@ -497,7 +497,7 @@ class HLlangLexerFramework(LexerFramework):
             self.add_lex_item(
                 name, reg_expr, format_cap_text, reg_flags, group)
 
-    def add_constants(self, name: str = "Constant", format_cap_text: Callable[[str], Any] = LexerFramework.non_format_cap_text, reg_flags=0, group: int = 0, is_add_zero_width_assertion: bool = True, *reg_exprs: str) -> None:
+    def add_constants(self, name: str = "Constant", format_cap_text: Callable[[str], Any] = LexerFramework.none_format_cap_text, reg_flags=0, group: int = 0, is_add_zero_width_assertion: bool = True, *reg_exprs: str) -> None:
         """
         Add Constants Lex items, and recomand to add composite constants first.
 

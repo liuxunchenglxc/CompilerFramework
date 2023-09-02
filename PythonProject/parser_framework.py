@@ -299,13 +299,15 @@ class ParserFramework:
 
         Parameters
         ----------
-        production : :obj:`Production`
-            production
+        name : str
+            name of semant_callback, the key in dict
+        semant_callback : :obj:`Callable` of :obj:`list` of :obj:`ParseUnit` with return :obj:`Any`
+            the callback when reduce one production for semant analysis
         """
         self.semant_callback_dict[name] = semant_callback
 
     @staticmethod
-    def non_semant_callback(parse_units: List[ParseUnit]) -> Any:
+    def none_semant_callback(parse_units: List[ParseUnit]) -> Any:
         return None
 
     def add_production_by_str(self, product_sentence: str):
@@ -344,7 +346,7 @@ class ParserFramework:
         if vs[1] != "->" and vs[1] != "|" and vs[1] != ":":
             raise ProductSentenceException(product_sentence)
         last_index = len(vs) - 1
-        semant_callback = self.non_semant_callback
+        semant_callback = self.none_semant_callback
         attr = None
         if vs[last_index][0] == '@':
             s = vs[last_index][1:].split("$", 2)
