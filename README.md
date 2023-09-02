@@ -27,9 +27,11 @@ At present, the author completed the previous classes of Lexer and Parser in C# 
 - [x] Lexer Docs
 - [x] ParserFramework
 - [x] Parser Docs
-
+### Doing
+- [ ] BUParserFramework LR(0) and LR(1) (Bottom-up Parser) (自底向上的语法框架)
 ### Todo
-- [ ] BUParserFramework 自底向上的语法框架
+- [ ] BUParserFramework SLR LALR(1)
+- [ ] Top-down Parser Framework
 - [ ] Something more...
 
 ## Docs
