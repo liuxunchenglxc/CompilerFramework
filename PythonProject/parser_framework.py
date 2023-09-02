@@ -105,6 +105,12 @@ class Production:
         self.semant_callback = semant_callback
         self.attr = attr
 
+    def deep_copy(self):
+        """
+        Deep copy self
+        """
+        return Production(self.pre, [i for i in self.sufs], self.semant_callback, self.attr)
+
 
 class ParseIndexException(Exception):
     """
