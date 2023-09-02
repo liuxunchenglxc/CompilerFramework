@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.If not, see<https://www.gnu.org/licenses/>.
 
+from enum import Enum
 from typing import Callable, Any, List, Tuple, Dict
 import time
 from queue import LifoQueue
@@ -89,11 +90,30 @@ class LRkItem:
         else:
             return False
 
-    def is_on_reduce(self) -> bool:
+    def is_on_reduce(self, symbol: str) -> bool:
         """
-        Return `True` if the dot '•' at the tail of this product.
+        Return `True` if the dot '•' at the tail of this product, and can be reduce.
+
+        Parameters
+        ----------
+        symbol : str
+            the symbol added
+
+        Returns
+        -------
+        bool
+            can be reduce or not
         """
-        return self.dot_pos >= len(self.production.sufs)
+        if self.dot_pos >= len(self.production.sufs):
+            if self.follow:  # LR(1)
+                if self.follow[0] == symbol:
+                    return True
+                else:
+                    return False
+            else:  # LR(0)
+                return True
+        else:
+            return False
 
     def set_follow(self, follow: List[str] = []) -> None:
         """
@@ -252,29 +272,47 @@ class Closure:
                 i for i in self.follow_dict[nonterminal]]
         return temp
 
-    def closure_add_and_extension(self, symbol: str) -> bool:
+    AddExtendReturn = Enum("AddExtendReturn", "NONE REDUCE ADD CONFLICT")
+
+    def add_and_extend(self, symbol: str) -> Tuple[AddExtendReturn, List[LRkItem], List[LRkItem]]:
         """
-        For build LR Table, add a symbol to closure and extend this closure. Suggest deep copy this closure for backup first.
+        For build LR Table, add a symbol to closure and extend this closure. Suggest deep copy this closure for backup first. If goto-reduce conflit detected, still do goto change for this closure, and return the reduce items too. You can keep the changed closure for 'goto' or not keep closure but keep reduce items for 'reduce'.
 
         Parameters
         ----------
         symbol : str
-            the added symbol
+            the added symbol or incur reduce
 
         Returns
         -------
-        bool
-            Success adding is `True`, if cannot add, return `False`. After this, you need to cmp new and old closure to check the self loop in DAG.
+        :obj:`Tuple[AddExtendReturn, List[LRkItem], List[LRkItem]]`
+            Success adding or detected reduction is `AddExtendReturn.REDUCE` or `ADD` or `CONFLICT`, if cannot add and reduce, return `AddExtendReturn.NONE`. After this, you need to cmp new and old closure to check the self loop in Graph if is `ADD` or `CONFLICT`. The reduce items is at the 2nd position in return. The add core items is at the 3rd position in return.
         """
+        # Find GOTO
         is_add = False
         core_items: List[LRkItem] = []
+        # traverse items
         for nonterminal in self.nonterminals:
-            for i in range(len(self.symbol_LR_item_dict[nonterminal])):
-                if self.symbol_LR_item_dict[nonterminal][i].add(symbol):
-                    core_items.append(self.symbol_LR_item_dict[nonterminal][i])
+            for item in self.symbol_LR_item_dict[nonterminal]:
+                # try add symbol to item, and not change self.symbol_LR_item_dict
+                if item.add(symbol):
+                    core_items.append(item)
                     is_add = True
-        if not is_add:
-            return False
+        # Find REDUCE
+        is_reduce = False
+        reduce_items: List[LRkItem] = []
+        # traverse items
+        for nonterminal in self.nonterminals:
+            for item in self.symbol_LR_item_dict[nonterminal]:
+                # try reduce item
+                if item.is_on_reduce(symbol):
+                    reduce_items.append(item)
+                    is_reduce = True
+        # Return Nothing
+        if not is_add and not is_reduce:
+            return self.AddExtendReturn.NONE, reduce_items, core_items
+        if not is_add and is_reduce:
+            return self.AddExtendReturn.REDUCE, reduce_items, core_items
         # check all recieved production to extend
         productions = self.recieved_productions
         check_list = []
@@ -369,7 +407,10 @@ class Closure:
                         LR_items.append(LR_item)
                 temp_symbol_LR_item_dict[nonterminal] = LR_items
             self.symbol_LR_item_dict = temp_symbol_LR_item_dict
-        return True
+        if is_reduce:
+            return self.AddExtendReturn.CONFLICT, reduce_items, core_items
+        else:
+            return self.AddExtendReturn.ADD, reduce_items, core_items
 
 
 def LR_item_cmp(LR_item_a: LRkItem, LR_item_b: LRkItem) -> bool:
@@ -426,3 +467,176 @@ def closure_cmp(closure_a: Closure, closure_b: Closure) -> bool:
             if not LR_item_cmp(item_a, item_b):
                 return False
     return True
+
+
+class LRAction:
+    """
+    The LR Action is mainly defined the actions in LR, such as goto, reduce
+    """
+
+    ActionType = Enum('ActionType', 'GOTO REDUCE ACC ERR')
+
+    def __init__(self, action_type: ActionType = ActionType.ERR, action_value: Any = None) -> None:
+        """
+        The LR Action is mainly defined the actions in LR, such as goto, reduce
+
+        Parameters
+        ----------
+        action_type : :obj:`LRAction.ActionType`
+            the type of action, includes `GOTO`, `REDUCE`, `ACC`, and `ERR`.
+        action_value : :obj:`Any`, optional
+            the value of action, None for `ACC`, int for `GOTO`, product for `REDUCE` 
+        """
+        self.action_type = action_type
+        self.action_value = action_value
+
+
+class LRTable:
+    """
+    The LR Table for action and goto. This is mainly defined this data structure.
+    """
+
+    def __init__(self, closure_num: int, terminals: List[str], nonterminals: List[str], prepared_dict: Dict[str, List[LRAction]] = {}) -> None:
+        """
+        The LR Table for action and goto. This is mainly defined this data structure.
+
+        Parameters
+        ----------
+        closure_num : int
+            the number of closures
+        terminals : :obj:`list` of str
+            the terminals of init closures
+        nonterminals : :obj:`list` of str
+            the nonterminals of init closures
+        prepared_dict : :obj:`Dict[str, List[LRAction]]`, optional
+            The inner prepared_dict if have. Reserve for deep copy. For normal usage, KEEP this empty '{}'. 
+        """
+        self._table_dict: Dict[str, List[LRAction]] = prepared_dict
+        self.closure_num = closure_num
+        self.terminals = terminals
+        self.nonterminals = nonterminals
+        # build empty dict
+        if not prepared_dict:
+            for i in terminals:
+                self._table_dict[i] = [LRAction() for _ in range(closure_num)]
+            for i in nonterminals:
+                self._table_dict[i] = [LRAction() for _ in range(closure_num)]
+            if '@EOF' not in self._table_dict:
+                self.terminals.append('@EOF')
+                self._table_dict['@EOF'] = [LRAction()
+                                            for _ in range(closure_num)]
+
+    def set_action(self, symbol: str, closure_index: int, action: LRAction) -> None:
+        """
+        Set the action in table. For the cell has not been set, default `ActionType.ERR`.
+
+        Parameters
+        ----------
+        symbol : str
+            the symbol of column
+        closure_index : int
+            the index of row
+        action : :obj:`LRAction`
+            the action
+        """
+        self._table_dict[symbol][closure_index] = action
+
+    def get_action(self, symbol: str, closure_index: int) -> LRAction:
+        """
+        Get the action in table.
+
+        Parameters
+        ----------
+        symbol : str
+            the symbol of column
+        closure_index : int
+            the index of row
+        """
+        return self._table_dict[symbol][closure_index]
+
+    def add_new_row(self):
+        """
+        Add a new row to this table
+        """
+        for k in list(self._table_dict.keys()):
+            self._table_dict[k].append(LRAction())
+
+
+ConflictType = Enum("ConflictType", "GotoReduce MultiReduce")
+
+
+def LR_table_construct(init_closure: Closure, conflict_callback: Callable[[ConflictType, List[LRkItem], List[LRkItem]], Tuple[Closure.AddExtendReturn, List[LRkItem], List[LRkItem]]]) -> LRTable:
+    """
+    The LR table constructor, just construct the table and callback the conflict, only include basic constructing operation.
+
+    Parameters
+    ----------
+    init_closure : :obj:`Closure`
+        the closure of augmented grammar
+    conflict_callback
+        The callback when the action conflict, such as goto-reduce conflict, it shoud be :obj:`Callable[[ConflictType, List[LRkItem], List[LRkItem]], Tuple[Closure.AddExtendReturn, List[LRkItem], List[LRkItem]]]` to adapt all conflit types like the return of :obj:`Closure.add_and_extend()`. For :obj:`ConflictType.MultiReduce` conflit, to choose one item to reduce or raise an exception. For :obj:`ConflictType.GotoReduce`, to choose one action and return related data or raise an exception. This callback define like: `def callback(ct: ConflictType, reduce_items: List[LRkItem], add_core_items: List[LRkItem]) -> Tuple[Closure.AddExtendReturn, List[LRkItem], List[LRkItem]]`.
+    """
+    if '@EOF' not in init_closure.terminals:
+        init_closure.terminals.append('@EOF')
+    # Build init table
+    nonterminals = init_closure.nonterminals
+    # Remove Augmented Head
+    nonterminals.remove(init_closure.recieved_productions[0].pre)
+    table = LRTable(1, init_closure.terminals, nonterminals)
+    # Scan the symbols
+    closures = [init_closure]
+    closure_index = 0
+    # Action ACC first
+    acc_closure = init_closure.deep_copy()
+    ret, retr, reta = acc_closure.add_and_extend(
+        init_closure.recieved_productions[0].sufs[0])
+    if ret == Closure.AddExtendReturn.ADD:
+        if not closure_cmp(acc_closure, init_closure):
+            closures.append(acc_closure)
+            table.set_action(init_closure.recieved_productions[0].sufs[0], closure_index, LRAction(
+                LRAction.ActionType.GOTO, len(closures) - 1))
+            table.set_action('@EOF', len(closures) - 1,
+                             LRAction(LRAction.ActionType.ACC))
+    symbols = init_closure.terminals + nonterminals
+    # Remove Augmented Body, since the body is the root of rest produtions, after adding ACC, NO MORE goto, NO MORE reduce
+    symbols.remove(init_closure.recieved_productions[0].sufs[0])
+
+    def try_symbols(old_closure, symbols, _closure_index):
+        for symbol in symbols:
+            new_closure = old_closure.deep_copy()
+            ret, retr, reta = new_closure.add_and_extend(symbol)
+            # Goto-Reduce Conflict
+            if ret == Closure.AddExtendReturn.CONFLICT:
+                ret, retr, reta = conflict_callback(
+                    ConflictType.GotoReduce, retr, reta)
+            # GOTO
+            if ret == Closure.AddExtendReturn.ADD:
+                # Self circle
+                if closure_cmp(new_closure, old_closure):
+                    table.set_action(symbol, _closure_index, LRAction(
+                        LRAction.ActionType.GOTO, _closure_index))
+                else:  # Not self circle
+                    closures.append(new_closure)
+                    table.set_action(symbol, _closure_index, LRAction(
+                        LRAction.ActionType.GOTO, len(closures) - 1))
+            # REDUCE
+            elif ret == Closure.AddExtendReturn.REDUCE:
+                if len(retr) > 1:
+                    ret, retr, reta = conflict_callback(
+                        ConflictType.MultiReduce, retr, reta)
+                    reduce_item: LRkItem = retr[0]
+                elif len(retr) == 1:
+                    reduce_item: LRkItem = retr[0]
+                else:
+                    e = Exception()
+                    e.add_note("Should NOT be here!!!")
+                    raise e
+                table.set_action(symbol, _closure_index, LRAction(
+                    LRAction.ActionType.REDUCE, reduce_item.production))
+
+    try_symbols(init_closure, symbols, closure_index)
+    closure_index = 2
+    while closure_index < len(closures):
+        try_symbols(closures[closure_index], symbols, closure_index)
+        closure_index += 1
+    return table
