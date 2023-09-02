@@ -7,6 +7,12 @@ A Compiler Framework with complete lexical analysis and production supportted pa
 
 This framework has both Python 3 and C# versions. C# version has stopped maintenance. Python 3 version has included all essential functions in C# version, and more functions are incoming.
 
+### Author's self-talking
+
+现在(2023-09-02)，居然，Python的代码量和C#的差不多一样多了，看来这个仓库马上要变成Python仓库了，2333。
+
+At present (2023-09-02), actually, the row number of Python is just almost same as C#'s. It seems that this repository is about to become Python repository,  lol.
+
 # Python Version
 目前已经写完了之前已经完善的词法和语法相关的类。C#版提供的基础功能Python版已经都有了。至于Demo和Unit Test有空了再写。
 
