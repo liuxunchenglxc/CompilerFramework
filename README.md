@@ -14,9 +14,6 @@ This framework has both Python 3 and C# versions. C# version has stopped mainten
 At present (2023-09-02), actually, the row number of Python is just almost same as C#'s. It seems that this repository is about to become Python repository,  lol.
 
 # Python Version
-目前已经写完了之前已经完善的词法和语法相关的类。C#版提供的基础功能Python版已经都有了。至于Demo和Unit Test有空了再写。
-
-At present, the author completed the previous classes of Lexer and Parser in C# version. The basic function has been in Python version. As for Demo and Unit Test, the author will code when has free time.
 
 - **开发人员**: `刘迅承`
 - **Author**: `Xuncheng Liu`
@@ -28,15 +25,17 @@ At present, the author completed the previous classes of Lexer and Parser in C# 
 ## Schedule
 
 ### Done
-- [x] LexerFramework class
-- [x] HLlangLexerFramework class
-- [x] Lexer Docs
-- [x] ParserFramework
-- [x] Parser Docs
+- [x] LexerFramework class (Lexical Analysis base class)
+- [x] HLlangLexerFramework class (Lexical Analysis high class)
+- [x] Lexer Docs (Lexical Analysis)
+- [x] ParserFramework (Parsing base class)
+- [x] Parser Docs (Parsing)
+- [x] LRParserFramework (Bottom-up parsing base class)
 ### Doing
-- [ ] BUParserFramework LR(0) and LR(1) (Bottom-up Parser) (自底向上的语法框架)
+- [ ] LR(0), LR(1), SLR high class (Bottom-up parsing)
 ### Todo
-- [ ] BUParserFramework SLR LALR(1)
+- [ ] LALR(1) (Bottom-up parsing)
+- [ ] Test Bottom-up Parser
 - [ ] Top-down Parser Framework
 - [ ] Something more...
 

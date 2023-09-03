@@ -25,7 +25,7 @@ from parser_framework import ParserFramework, Production, ParseUnit
 
 def add_augmented_grammar(productions: List[Production], semant_callback: Callable[[List[ParseUnit]], Any] = ParserFramework.none_semant_callback, attr: Any = None) -> List[Production]:
     """
-    Add augmented grammar for the first production and return new `productions`
+    Add augmented grammar for the first production and return new `productions`, the new 'S' is named "@S".
 
     Parameters
     ----------
@@ -486,7 +486,7 @@ class LRAction:
         action_type : :obj:`LRAction.ActionType`
             the type of action, includes `GOTO`, `REDUCE`, `ACC`, and `ERR`.
         action_value : :obj:`Any`, optional
-            the value of action, None for `ACC`, int for `GOTO`, product for `REDUCE` 
+            the value of action, None for `ACC`, int for `GOTO`, production for `REDUCE` 
         """
         self.action_type = action_type
         self.action_value = action_value
@@ -494,7 +494,7 @@ class LRAction:
 
 class LRTable:
     """
-    The LR Table for action and goto. This is mainly defined this data structure.
+    The LR Table for action and goto. This is mainly defined this data structure. Construct LR table use :obj:`LR_table_construct()`.
     """
 
     def __init__(self, closure_num: int, terminals: List[str], nonterminals: List[str], prepared_dict: Dict[str, List[LRAction]] = {}) -> None:
@@ -563,10 +563,13 @@ class LRTable:
             self._table_dict[k].append(LRAction())
 
 
-ConflictType = Enum("ConflictType", "GotoReduce MultiReduce")
+ConflictType = Enum("ConflictType", "ShiftReduce MultiReduce")
 
 
-def LR_table_construct(init_closure: Closure, conflict_callback: Callable[[ConflictType, List[LRkItem], List[LRkItem]], Tuple[Closure.AddExtendReturn, List[LRkItem], List[LRkItem]]]) -> LRTable:
+def LR_table_construct(init_closure: Closure,
+                       conflict_callback: Callable[[ConflictType, List[LRkItem], List[LRkItem]],
+                                                   Tuple[Closure.AddExtendReturn, List[LRkItem], List[LRkItem]]]
+                       ) -> LRTable:
     """
     The LR table constructor, just construct the table and callback the conflict, only include basic constructing operation.
 
@@ -575,7 +578,7 @@ def LR_table_construct(init_closure: Closure, conflict_callback: Callable[[Confl
     init_closure : :obj:`Closure`
         the closure of augmented grammar
     conflict_callback
-        The callback when the action conflict, such as goto-reduce conflict, it shoud be :obj:`Callable[[ConflictType, List[LRkItem], List[LRkItem]], Tuple[Closure.AddExtendReturn, List[LRkItem], List[LRkItem]]]` to adapt all conflit types like the return of :obj:`Closure.add_and_extend()`. For :obj:`ConflictType.MultiReduce` conflit, to choose one item to reduce or raise an exception. For :obj:`ConflictType.GotoReduce`, to choose one action and return related data or raise an exception. This callback define like: `def callback(ct: ConflictType, reduce_items: List[LRkItem], add_core_items: List[LRkItem]) -> Tuple[Closure.AddExtendReturn, List[LRkItem], List[LRkItem]]`.
+        The callback when the action conflict, such as goto-reduce conflict, it shoud be :obj:`Callable[[ConflictType, List[LRkItem], List[LRkItem]], Tuple[Closure.AddExtendReturn, List[LRkItem], List[LRkItem]]]` to adapt all conflit types like the return of :obj:`Closure.add_and_extend()`. For :obj:`ConflictType.MultiReduce` conflit, to choose one item to reduce or raise an exception. For :obj:`ConflictType.ShiftReduce`, to choose one action and return related data or raise an exception. This callback define like: `def callback(ct: ConflictType, reduce_items: List[LRkItem], add_core_items: List[LRkItem]) -> Tuple[Closure.AddExtendReturn, List[LRkItem], List[LRkItem]]`.
     """
     if '@EOF' not in init_closure.terminals:
         init_closure.terminals.append('@EOF')
@@ -589,7 +592,7 @@ def LR_table_construct(init_closure: Closure, conflict_callback: Callable[[Confl
     closure_index = 0
     # Action ACC first
     acc_closure = init_closure.deep_copy()
-    ret, retr, reta = acc_closure.add_and_extend(
+    ret, _, _ = acc_closure.add_and_extend(
         init_closure.recieved_productions[0].sufs[0])
     if ret == Closure.AddExtendReturn.ADD:
         if not closure_cmp(acc_closure, init_closure):
@@ -609,7 +612,7 @@ def LR_table_construct(init_closure: Closure, conflict_callback: Callable[[Confl
             # Goto-Reduce Conflict
             if ret == Closure.AddExtendReturn.CONFLICT:
                 ret, retr, reta = conflict_callback(
-                    ConflictType.GotoReduce, retr, reta)
+                    ConflictType.ShiftReduce, retr, reta)
             # GOTO
             if ret == Closure.AddExtendReturn.ADD:
                 # Self circle
@@ -641,3 +644,155 @@ def LR_table_construct(init_closure: Closure, conflict_callback: Callable[[Confl
         try_symbols(closures[closure_index], symbols, closure_index)
         closure_index += 1
     return table
+
+
+class LRTableERRException(Exception):
+    """
+    Exception when read ERR action in LRTable.
+    """
+
+    def __init__(self, parse_unit: ParseUnit, *args: object) -> None:
+        """
+        Exception when read ERR action in LRTable.
+
+        Parameters
+        ----------
+        parse_unit : ParseUnit
+            the one incur action ERR
+        *args
+            for super class Exception
+        """
+        super().__init__(*args)
+        self.parse_unit = parse_unit
+
+    def __str__(self) -> str:
+        return f"LRTable ERR Error: The unit {self.parse_unit.name} in line {self.parse_unit.position[0]} col {self.parse_unit.position[0]} incurs the LR action of ERR. It is terminal? {self.parse_unit.is_terminator()}; Its value? {self.parse_unit.value}; Its property? {self.parse_unit.unit_property}."
+
+
+class LRParserFramework(ParserFramework):
+    """
+    The basic LR Parser Framework for LR k=0,1.
+
+    Parameters
+    ----------
+    self.k : int
+        the k of LR, 0 or 1.
+    self.acc : bool
+        is or not reached ACC after parsing
+    """
+
+    def __init__(self, k=0) -> None:
+        """
+        The basic LR Parser Framework for LR k=0,1.
+
+        Parameters
+        ----------
+        k : int
+            the k of LR, 0 or 1.
+        """
+        super().__init__()
+        self.k = k
+        self.acc = False
+        self._closure_index_stack = LifoQueue()
+
+    def parse(self, parse_unit: ParseUnit) -> None:
+        """
+        Parse the lexical result. Before recieve lex results, you should :obj:`build_table()` as this func depends on LR Table.
+
+        Parameters
+        ----------
+        parse_unit : :obj:`ParseUnit`
+            the new :obj:`ParseUnit` from :obj:`ParserFramework.parse_lex_unit()` or :obj:`ParserFramework.parse_lex_unit_async()`
+        """
+        action = self._table.get_action(parse_unit.name, self._closure_index)
+
+        def do_action(action):
+            # ACC
+            if action.action_type == LRAction.ActionType.ACC:
+                self.acc = True
+            # ERR
+            elif action.action_type == LRAction.ActionType.ERR:
+                raise LRTableERRException(parse_unit)
+            # GOTO / Shift
+            elif action.action_type == LRAction.ActionType.GOTO:
+                self._closure_index = action.action_value
+                self._closure_index_stack.put(self._closure_index)
+            # REDUCE
+            elif action.action_type == LRAction.ActionType.REDUCE:
+                production: Production = action.action_value
+                position: Tuple[int, int] = (0, 0)
+                stack_parse_units: List[ParseUnit] = []
+                # pop stack
+                for _ in production.sufs:
+                    stack_parse_unit: ParseUnit = self._stack.get()
+                    position = stack_parse_unit.position
+                    stack_parse_units.insert(0, stack_parse_unit)
+                # invoke semant callback when production was reduced
+                production.semant_callback(stack_parse_units)
+                # put new reduced nonterminal to stack
+                reduce_parse_unit: ParseUnit = ParseUnit(
+                    production.pre, stack_parse_units, position, None, None)
+                self._stack.put(reduce_parse_unit)
+                # check which closure should goto
+                closure_index = self._closure_index_stack.get()
+                # ERR mean null when check after-reduce goto
+                while self._table.get_action(production.pre, closure_index) == LRAction.ActionType.ERR:
+                    closure_index = self._closure_index_stack.get()
+                # get new action, if is goto just do it, if is reduce, then do reduce again. this may not be acc since acc is after one goto action.
+                new_action = self._table.get_action(
+                    production.pre, closure_index)
+                do_action(new_action)
+
+        do_action(action)
+        # put new unit, shift it
+        self._stack.put(parse_unit)
+
+    def on_finish(self, value: Any = None, unit_property: Any = None) -> None:
+        """
+        Put @EOF to the stack, tell framework is finished. This func will invoke :obj:`parse()` to deal with EOF. After this, you can check :obj:`self.acc` is True or False.
+
+        Parameters
+        ----------
+        value : optional
+            reserved place for advanced usage, EOF's value of :obj:`ParseUnit`
+        unit_property : optional
+            reserved place for advanced usage, EOF's unit_property of :obj:`ParseUnit`
+        """
+        self.parse(ParseUnit('@EOF', [], (-1, -1), value, unit_property))
+
+    def get_grammar_tree(self) -> ParseUnit:
+        """
+        Return the top :obj:`ParseUnit` (not the @EOF one, the real useful @S one) in stack, which includes the tree. You may invoke this after parsing.
+        """
+        for item in self._stack.queue:
+            parse_item: ParseUnit = item
+            if parse_item.name == "@S":
+                return parse_item
+        e = Exception()
+        e.add_note("Not fund the '@S' unit.")
+        raise e
+
+    def build_table(self,
+                    conflict_callback: Callable[[ConflictType, List[LRkItem], List[LRkItem]], Tuple[Closure.AddExtendReturn, List[LRkItem], List[LRkItem]]],
+                    augmented_grammar_semant_callback: Callable[[
+                        List[ParseUnit]], Any] = ParserFramework.none_semant_callback,
+                    augmented_grammar_attr: Any = None
+                    ) -> None:
+        """
+        Build the LR table for this framework. First, this will invoke :obj:`add_augmented_grammar()` to augment grammar. Then, build closure and table. Finally, save the table in this object.
+
+        Parameters
+        ----------
+        conflict_callback : :obj:`Callable[[ConflictType, List[LRkItem], List[LRkItem]], Tuple[Closure.AddExtendReturn, List[LRkItem], List[LRkItem]]]`
+            the callback for deal with the conflit. Yes, this is a basic class, conflit should deal in outter or higher class.
+        augmented_grammar_semant_callback : :obj:`Callable[[List[ParseUnit]], Any]`, optional
+            the semant callback for new production in augmented grammar in :obj:`add_augmented_grammar()`
+        augmented_grammar_attr : optional
+            the attr for new production in augmented grammar in :obj:`add_augmented_grammar()`
+        """
+        productions = add_augmented_grammar(
+            self.productions, augmented_grammar_semant_callback, augmented_grammar_attr)
+        init_closure = Closure(productions, self.k)
+        self._table = LR_table_construct(init_closure, conflict_callback)
+        self._closure_index: int = 0
+        self._closure_index_stack.put(0)
