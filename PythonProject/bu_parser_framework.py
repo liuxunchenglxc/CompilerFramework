@@ -326,7 +326,7 @@ class Closure:
             for i in range(len(productions)):
                 production = productions[i]
                 if production.pre in check_symbol and i not in check_list:
-                    check_symbol += production.sufs
+                    check_symbol.append(production.sufs[0])
                     check_symbol = list(set(check_symbol))
                     check_list.append(i)
         self.recieved_productions = []
