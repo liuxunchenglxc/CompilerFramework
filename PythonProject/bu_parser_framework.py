@@ -318,7 +318,8 @@ class Closure:
         check_list = []
         check_symbol = []
         for item in core_items:
-            check_symbol += item.production.sufs
+            # check the follow symbol to extend
+            check_symbol.append(item.production.sufs[item.dot_pos])
         list_len = -1
         while len(check_list) != list_len:
             list_len = len(check_list)
