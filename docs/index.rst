@@ -13,6 +13,7 @@ Welcome to CompilerFramework-Python's documentation!
    lexer_framework
    parser_framework
    bu_parser_framework
+   lr_parser
 
 
 Indices and tables

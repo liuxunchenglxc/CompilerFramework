@@ -16,10 +16,8 @@
 
 from enum import Enum
 from typing import Callable, Any, List, Tuple, Dict
-import time
 from queue import LifoQueue
 
-from lexer_framework import LexerResult
 from parser_framework import ParserFramework, Production, ParseUnit
 
 
@@ -131,6 +129,20 @@ class LRkItem:
         Deep copy self
         """
         return LRkItem(self.production.deep_copy(), self.dot_pos, [i for i in self.follow])
+
+    def print(self, with_node: bool = True) -> str:
+        """
+        print self production and node pos
+
+        Parameters
+        ----------
+        with_node : bool, optional
+            print the node or not
+        """
+        sufs = self.production.sufs
+        if with_node:
+            sufs[self.dot_pos] = '•' + sufs[self.dot_pos]
+        return self.production.pre + " -> " + " ".join(sufs)
 
 
 class Closure:

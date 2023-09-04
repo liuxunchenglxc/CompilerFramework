@@ -321,6 +321,8 @@ class ParserFramework:
         indirect way of add production by string, format string `product_sentence` as:
         `Pre ->|:|| Suf0 Suf1 ... [@SemantCallbackName[$attr]]`
 
+        `$attr` is as: `$key1=value1[&key2=value2[&...]]`
+
         like this:
         `E -> F G`
 
@@ -334,7 +336,7 @@ class ParserFramework:
         `E : Delimiter E Delimiter @Semant`
 
         or with attr in string (attr will be string type), just add `$attr` directly behand `@SemantDelegateName`:
-        `E -> E F @Semant$deal`
+        `E -> E F @Semant$priority=0&attr2=xxx`
 
         If you need Semant Callback, please add `semant_callback` use `add_semant_callback_dict` first.
 
@@ -353,13 +355,19 @@ class ParserFramework:
             raise ProductSentenceException(product_sentence)
         last_index = len(vs) - 1
         semant_callback = self.none_semant_callback
-        attr = None
+        attr = {}
         if vs[last_index][0] == '@':
             s = vs[last_index][1:].split("$", 2)
             semant_callback = self.semant_callback_dict[s[0]]
             if len(s) == 2:
                 if s[1]:
-                    attr = s[1]
+                    attr_s = s[1].split("&")
+                    for attr_i in attr_s:
+                        attr_i_s = attr_i.split("=")
+                        if len(attr_i_s) > 1:
+                            attr[attr_i_s[0]] = attr_i_s[1]
+                        else:
+                            attr[attr_i_s[0]] = None
             last_index -= 1
         sufs = vs[2:last_index + 1]
         production = Production(vs[0], sufs, semant_callback, attr)

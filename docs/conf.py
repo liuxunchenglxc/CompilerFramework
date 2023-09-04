@@ -29,7 +29,7 @@ language = 'en'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # -- Options for todo extension ----------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/todo.html#configuration
@@ -38,7 +38,7 @@ todo_include_todos = True
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../PythonProject'))
+sys.path.insert(0, os.path.abspath('../'))
 def skip(app, what, name, obj, would_skip, options):
     if name in ( '__init__',):
         return False
