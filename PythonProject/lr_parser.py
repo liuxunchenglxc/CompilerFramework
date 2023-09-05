@@ -130,13 +130,19 @@ class LR_0_Parser(LRParserFramework):
             return_item = reduce_items[0]
             is_r = True
             for item in core_items:
-                if int(item.production.attr['priority']) > max_priority:
-                    max_priority = int(item.production.attr['priority'])
+                priority = 0
+                if 'priority' in item.production.attr:
+                    priority = int(item.production.attr['priority'])
+                if priority > max_priority:
+                    max_priority = priority
                     return_item = item
                     is_r = False
             for item in reduce_items:
-                if int(item.production.attr['priority']) > max_priority:
-                    max_priority = int(item.production.attr['priority'])
+                priority = 0
+                if 'priority' in item.production.attr:
+                    priority = int(item.production.attr['priority'])
+                if priority > max_priority:
+                    max_priority = priority
                     return_item = item
                     is_r = True
             self._conflict_log += "Conflict Solving Result:\n"
@@ -146,4 +152,20 @@ class LR_0_Parser(LRParserFramework):
             else:
                 return Closure.AddExtendReturn.ADD, [], [return_item]
 
-        super().build_table(conflict_callback, augmented_grammar_semant_callback, augmented_grammar_attr)
+        super().build_table(conflict_callback,
+                            augmented_grammar_semant_callback, augmented_grammar_attr)
+
+
+class LR_1_Parser(LR_0_Parser):
+    """
+    The LR(1) Parser base on LR_0_Parser -> LRParserFramework
+
+    Parameters
+    ----------
+    self.acc : bool
+        is or not reached ACC after parsing
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.k = 1
