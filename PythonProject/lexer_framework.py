@@ -376,7 +376,7 @@ class LexerFramework:
         index = 0
         line = 0
         pos = -1
-        while text_reader.tell() == pos:
+        while text_reader.tell() != pos:
             pos = text_reader.tell()
             line_text = str(text_reader.readline()).strip()
             line += 1

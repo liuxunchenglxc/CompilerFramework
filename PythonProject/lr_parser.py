@@ -127,8 +127,12 @@ class LR_0_Parser(LRParserFramework):
                     self._conflict_log += reduce_item.print(False) + "\n"
             # deal with conflit with priority
             max_priority = 0
-            return_item = reduce_items[0]
-            is_r = True
+            if core_items:
+                return_item = core_items[0]
+                is_r = False
+            else:
+                return_item = reduce_items[0]
+                is_r = True
             for item in core_items:
                 priority = 0
                 if 'priority' in item.production.attr:

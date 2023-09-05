@@ -139,9 +139,12 @@ class LRkItem:
         with_node : bool, optional
             print the node or not
         """
-        sufs = self.production.sufs
+        sufs = [i for i in self.production.sufs]
         if with_node:
-            sufs[self.dot_pos] = '•' + sufs[self.dot_pos]
+            if self.dot_pos < len(sufs):
+                sufs[self.dot_pos] = '•' + sufs[self.dot_pos]
+            else:
+                sufs[-1] = sufs[-1] + '•'
         return self.production.pre + " -> " + " ".join(sufs)
 
 
@@ -180,6 +183,7 @@ class Closure:
         """
         self.terminals: List[str] = []
         self.nonterminals: List[str] = []
+        self.symbol_LR_item_dict: Dict[str, List[LRkItem]] = {}
         self.k = k
         if not productions:
             return
@@ -199,7 +203,6 @@ class Closure:
         for i in check_list:
             self.recieved_productions.append(productions[i])
         # collect productions into dict for find
-        self.symbol_LR_item_dict: Dict[str, List[LRkItem]] = {}
         for production in self.recieved_productions:
             LR_item = LRkItem(production)
             if production.pre not in self.symbol_LR_item_dict:
@@ -207,12 +210,15 @@ class Closure:
             else:
                 self.symbol_LR_item_dict[production.pre].append(LR_item)
         # split terminal and nonterminal
+        for p in productions:
+            if p.pre in self.symbol_LR_item_dict:
+                self.nonterminals.append(p.pre)
+
         for symbol in check_symbol:
-            if symbol in self.symbol_LR_item_dict:
-                self.nonterminals.append(symbol)
-            else:
+            if symbol not in self.nonterminals:
                 self.terminals.append(symbol)
 
+        self.init_recieved_produtions = self.recieved_productions
         # LR(0) is ok, next is for LR(1)
 
         self.first_dict: Dict[str, List[str]] = {}
@@ -272,17 +278,33 @@ class Closure:
         temp = Closure([], self.k)
         temp.recieved_productions = [p.deep_copy()
                                      for p in self.recieved_productions]
+        temp.init_recieved_produtions = [p.deep_copy()
+                                         for p in self.init_recieved_produtions]
         for nonterminal in self.nonterminals:
-            temp.symbol_LR_item_dict[nonterminal] = [
-                item.deep_copy() for item in self.symbol_LR_item_dict[nonterminal]]
+            if nonterminal in self.symbol_LR_item_dict:
+                temp.symbol_LR_item_dict[nonterminal] = [
+                    item.deep_copy() for item in self.symbol_LR_item_dict[nonterminal]]
         temp.terminals = [i for i in self.terminals]
         temp.nonterminals = [i for i in self.nonterminals]
         for nonterminal in self.nonterminals:
-            temp.first_dict[nonterminal] = [
-                i for i in self.first_dict[nonterminal]]
-            temp.follow_dict[nonterminal] = [
-                i for i in self.follow_dict[nonterminal]]
+            if self.first_dict == {}:
+                temp.first_dict = {}
+            else:
+                temp.first_dict[nonterminal] = [
+                    i for i in self.first_dict[nonterminal]]
+            if self.follow_dict == {}:
+                temp.follow_dict = {}
+            else:
+                temp.follow_dict[nonterminal] = [
+                    i for i in self.follow_dict[nonterminal]]
         return temp
+
+    def print(self) -> str:
+        s = ""
+        for items in list(self.symbol_LR_item_dict.values()):
+            for item in items:
+                s = item.print() + "\n"
+        return s
 
     AddExtendReturn = Enum("AddExtendReturn", "NONE REDUCE ADD CONFLICT")
 
@@ -300,38 +322,39 @@ class Closure:
         :obj:`Tuple[AddExtendReturn, List[LRkItem], List[LRkItem]]`
             Success adding or detected reduction is `AddExtendReturn.REDUCE` or `ADD` or `CONFLICT`, if cannot add and reduce, return `AddExtendReturn.NONE`. After this, you need to cmp new and old closure to check the self loop in Graph if is `ADD` or `CONFLICT`. The reduce items is at the 2nd position in return. The add core items is at the 3rd position in return.
         """
-        # Find GOTO
-        is_add = False
-        core_items: List[LRkItem] = []
-        # traverse items
-        for nonterminal in self.nonterminals:
-            for item in self.symbol_LR_item_dict[nonterminal]:
-                # try add symbol to item, and not change self.symbol_LR_item_dict
-                if item.add(symbol):
-                    core_items.append(item)
-                    is_add = True
         # Find REDUCE
         is_reduce = False
         reduce_items: List[LRkItem] = []
         # traverse items
-        for nonterminal in self.nonterminals:
-            for item in self.symbol_LR_item_dict[nonterminal]:
+        for items in list(self.symbol_LR_item_dict.values()):
+            for item in items:
                 # try reduce item
                 if item.is_on_reduce(symbol):
                     reduce_items.append(item)
                     is_reduce = True
+        # Find GOTO
+        is_add = False
+        core_items: List[LRkItem] = []
+        # traverse items
+        for items in list(self.symbol_LR_item_dict.values()):
+            for item in items:
+                # try add symbol to item, and not change self.symbol_LR_item_dict
+                if item.add(symbol):
+                    core_items.append(item)
+                    is_add = True
         # Return Nothing
         if not is_add and not is_reduce:
             return self.AddExtendReturn.NONE, reduce_items, core_items
         if not is_add and is_reduce:
             return self.AddExtendReturn.REDUCE, reduce_items, core_items
         # check all recieved production to extend
-        productions = self.recieved_productions
+        productions = self.init_recieved_produtions
         check_list = []
         check_symbol = []
         for item in core_items:
             # check the follow symbol to extend
-            check_symbol.append(item.production.sufs[item.dot_pos])
+            if item.dot_pos < len(item.production.sufs):
+                check_symbol.append(item.production.sufs[item.dot_pos])
         list_len = -1
         while len(check_list) != list_len:
             list_len = len(check_list)
@@ -357,8 +380,11 @@ class Closure:
         for i in range(len(core_items)):
             index = len(core_items) - 1 - i
             core_item = core_items[index]
-            self.symbol_LR_item_dict[core_item.production.pre] = [
-                core_item] + self.symbol_LR_item_dict[core_item.production.pre]
+            if core_item.production.pre in self.symbol_LR_item_dict:
+                self.symbol_LR_item_dict[core_item.production.pre] = [
+                    core_item] + self.symbol_LR_item_dict[core_item.production.pre]
+            else:
+                self.symbol_LR_item_dict[core_item.production.pre] = [core_item]
         self.recieved_productions = core_productions + self.recieved_productions
 
         # LR(0) is ok, next is for LR(1)
@@ -471,15 +497,20 @@ def closure_cmp(closure_a: Closure, closure_b: Closure) -> bool:
     """
     if closure_a.nonterminals == [] and closure_b.nonterminals == []:
         return True
-    if closure_a.nonterminals != closure_b.nonterminals:
-        return False
-    if closure_a.terminals != closure_b.terminals:
-        return False
-    for nonterminal in closure_a.nonterminals:
-        for item_a, item_b in zip(closure_a.symbol_LR_item_dict[nonterminal], closure_b.symbol_LR_item_dict[nonterminal]):
-            if not LR_item_cmp(item_a, item_b):
-                return False
-    return True
+    #  if closure_a.nonterminals != closure_b.nonterminals:
+    #      return False
+    #  if closure_a.terminals != closure_b.terminals:
+    #      return False
+    #  for nonterminal in closure_a.nonterminals:
+    #      if nonterminal in closure_a.symbol_LR_item_dict and nonterminal in closure_b.symbol_LR_item_dict:
+    #          for item_a, item_b in zip(closure_a.symbol_LR_item_dict[nonterminal], closure_b.symbol_LR_item_dict[nonterminal]):
+    #              if not LR_item_cmp(item_a, item_b):
+    #                  return False
+    #      elif nonterminal in closure_a.symbol_LR_item_dict and nonterminal not in closure_b.symbol_LR_item_dict:
+    #          return False
+    #      elif nonterminal not in closure_a.symbol_LR_item_dict and nonterminal in closure_b.symbol_LR_item_dict:
+    #          return False
+    return closure_a.print() == closure_b.print()
 
 
 class LRAction:
@@ -574,6 +605,28 @@ class LRTable:
         for k in list(self._table_dict.keys()):
             self._table_dict[k].append(LRAction())
 
+    def print(self):
+        """
+        print this table
+        """
+        keys = list(self._table_dict.keys())
+        keys.sort()
+        print('index', *keys, sep="\t")
+        for i in range(len(self._table_dict[keys[0]])):
+            vs = [str(i)]
+            for key in keys:
+                action = self._table_dict[key][i]
+                if action.action_type == LRAction.ActionType.ACC:
+                    vs.append("acc")
+                elif action.action_type == LRAction.ActionType.ERR:
+                    vs.append("-")
+                elif action.action_type == LRAction.ActionType.GOTO:
+                    vs.append("g"+str(action.action_value))
+                elif action.action_type == LRAction.ActionType.REDUCE:
+                    vs.append("r"+action.action_value.pre)
+            print(*vs, sep="\t")
+
+
 
 ConflictType = Enum("ConflictType", "ShiftReduce MultiReduce")
 
@@ -596,8 +649,6 @@ def LR_table_construct(init_closure: Closure,
         init_closure.terminals.append('@EOF')
     # Build init table
     nonterminals = init_closure.nonterminals
-    # Remove Augmented Head
-    nonterminals.remove(init_closure.recieved_productions[0].pre)
     table = LRTable(1, init_closure.terminals, nonterminals)
     # Scan the symbols
     closures = [init_closure]
@@ -609,30 +660,37 @@ def LR_table_construct(init_closure: Closure,
     if ret == Closure.AddExtendReturn.ADD:
         if not closure_cmp(acc_closure, init_closure):
             closures.append(acc_closure)
+            table.add_new_row()
             table.set_action(init_closure.recieved_productions[0].sufs[0], closure_index, LRAction(
                 LRAction.ActionType.GOTO, len(closures) - 1))
             table.set_action('@EOF', len(closures) - 1,
                              LRAction(LRAction.ActionType.ACC))
     symbols = init_closure.terminals + nonterminals
-    # Remove Augmented Body, since the body is the root of rest produtions, after adding ACC, NO MORE goto, NO MORE reduce
-    symbols.remove(init_closure.recieved_productions[0].sufs[0])
 
     def try_symbols(old_closure, symbols, _closure_index):
         for symbol in symbols:
             new_closure = old_closure.deep_copy()
             ret, retr, reta = new_closure.add_and_extend(symbol)
+            print(ret, symbol, _closure_index)
             # Goto-Reduce Conflict
             if ret == Closure.AddExtendReturn.CONFLICT:
                 ret, retr, reta = conflict_callback(
                     ConflictType.ShiftReduce, retr, reta)
             # GOTO
             if ret == Closure.AddExtendReturn.ADD:
-                # Self circle
-                if closure_cmp(new_closure, old_closure):
-                    table.set_action(symbol, _closure_index, LRAction(
-                        LRAction.ActionType.GOTO, _closure_index))
-                else:  # Not self circle
+                # circle
+                is_circle = False
+                for i in range(len(closures)):
+                    closure = closures[i]
+                    if closure_cmp(new_closure, closure):
+                        table.set_action(symbol, _closure_index, LRAction(
+                            LRAction.ActionType.GOTO, i))
+                        is_circle = True
+                        break
+                # Not circle
+                if not is_circle:
                     closures.append(new_closure)
+                    table.add_new_row()
                     table.set_action(symbol, _closure_index, LRAction(
                         LRAction.ActionType.GOTO, len(closures) - 1))
             # REDUCE
@@ -644,9 +702,7 @@ def LR_table_construct(init_closure: Closure,
                 elif len(retr) == 1:
                     reduce_item: LRkItem = retr[0]
                 else:
-                    e = Exception()
-                    e.add_note("Should NOT be here!!!")
-                    raise e
+                    raise Exception("Should NOT be here!!!")
                 table.set_action(symbol, _closure_index, LRAction(
                     LRAction.ActionType.REDUCE, reduce_item.production))
 
@@ -655,6 +711,16 @@ def LR_table_construct(init_closure: Closure,
     while closure_index < len(closures):
         try_symbols(closures[closure_index], symbols, closure_index)
         closure_index += 1
+    debug = True
+    if debug:
+        table.print()
+        for i in range(len(closures)):
+            closure = closures[i]
+            print()
+            print(str(i) + ":")
+            for items in list(closure.symbol_LR_item_dict.values()):
+                for item in items:
+                    print(item.print())
     return table
 
 
@@ -663,7 +729,7 @@ class LRTableERRException(Exception):
     Exception when read ERR action in LRTable.
     """
 
-    def __init__(self, parse_unit: ParseUnit, *args: object) -> None:
+    def __init__(self, parse_unit: ParseUnit, closure_index: int, *args: object) -> None:
         """
         Exception when read ERR action in LRTable.
 
@@ -671,14 +737,17 @@ class LRTableERRException(Exception):
         ----------
         parse_unit : ParseUnit
             the one incur action ERR
+        closure_index : int
+            the index of closure
         *args
             for super class Exception
         """
         super().__init__(*args)
         self.parse_unit = parse_unit
+        self.closure_index = closure_index
 
     def __str__(self) -> str:
-        return f"LRTable ERR Error: The unit {self.parse_unit.name} in line {self.parse_unit.position[0]} col {self.parse_unit.position[0]} incurs the LR action of ERR. It is terminal? {self.parse_unit.is_terminator()}; Its value? {self.parse_unit.value}; Its property? {self.parse_unit.unit_property}."
+        return f"LRTable ERR Error: The unit {self.parse_unit.name} in line {self.parse_unit.position[0]} col {self.parse_unit.position[1]} incurs the LR action of ERR in table row {self.closure_index}. It is terminal? {self.parse_unit.is_terminator()}; Its value? {self.parse_unit.value}; Its property? {self.parse_unit.unit_property}."
 
 
 class LRParserFramework(ParserFramework):
@@ -719,19 +788,24 @@ class LRParserFramework(ParserFramework):
         action = self._table.get_action(parse_unit.name, self._closure_index)
 
         def do_action(action):
+            if parse_unit.name == '@EOF':
+                if action.action_type == LRAction.ActionType.GOTO:
+                    action = self._table.get_action(parse_unit.name, action.action_value)
             # ACC
             if action.action_type == LRAction.ActionType.ACC:
                 self.acc = True
             # ERR
             elif action.action_type == LRAction.ActionType.ERR:
-                raise LRTableERRException(parse_unit)
+                raise LRTableERRException(parse_unit, self._closure_index)
             # GOTO / Shift
             elif action.action_type == LRAction.ActionType.GOTO:
                 self._closure_index = action.action_value
                 self._closure_index_stack.put(self._closure_index)
+                print(f"name:{parse_unit.name} goto:{action.action_value}")
             # REDUCE
             elif action.action_type == LRAction.ActionType.REDUCE:
                 production: Production = action.action_value
+                print(f"name:{parse_unit.name} reduce:{production.pre} -> {' '.join(production.sufs)}")
                 position: Tuple[int, int] = (0, 0)
                 stack_parse_units: List[ParseUnit] = []
                 # pop stack
@@ -740,22 +814,32 @@ class LRParserFramework(ParserFramework):
                     position = stack_parse_unit.position
                     stack_parse_units.insert(0, stack_parse_unit)
                 # invoke semant callback when production was reduced
-                production.semant_callback(stack_parse_units)
+                value = production.semant_callback(stack_parse_units)
                 # put new reduced nonterminal to stack
                 reduce_parse_unit: ParseUnit = ParseUnit(
-                    production.pre, stack_parse_units, position, None, None)
+                    production.pre, stack_parse_units, position, value, None)
                 self._stack.put(reduce_parse_unit)
                 # check which closure should goto
-                closure_index = self._closure_index_stack.get()
+                if self._closure_index_stack.empty():
+                    closure_index = 0
+                else:
+                    self._closure_index_stack.get()
+                    closure_index = self._closure_index_stack.queue[-1]
                 # ERR mean null when check after-reduce goto
                 while self._table.get_action(production.pre, closure_index) == LRAction.ActionType.ERR:
-                    closure_index = self._closure_index_stack.get()
+                    if self._closure_index_stack.empty():
+                        closure_index = 0
+                    else:
+                        self._closure_index_stack.get()
+                        closure_index = self._closure_index_stack.queue[-1]
                 # get new action, if is goto just do it, if is reduce, then do reduce again. this may not be acc since acc is after one goto action.
                 new_action = self._table.get_action(
                     production.pre, closure_index)
-                do_action(new_action)
+                return new_action
 
-        do_action(action)
+        new_action = do_action(action)
+        while new_action:
+            new_action = do_action(new_action)
         # put new unit, shift it
         self._stack.put(parse_unit)
 
@@ -780,9 +864,7 @@ class LRParserFramework(ParserFramework):
             parse_item: ParseUnit = item
             if parse_item.name == "@S":
                 return parse_item
-        e = Exception()
-        e.add_note("Not fund the '@S' unit.")
-        raise e
+        raise Exception("Not fund the '@S' unit.")
 
     def build_table(self,
                     conflict_callback: Callable[[ConflictType, List[LRkItem], List[LRkItem]], Tuple[Closure.AddExtendReturn, List[LRkItem], List[LRkItem]]],
