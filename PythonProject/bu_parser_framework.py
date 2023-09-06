@@ -671,7 +671,6 @@ def LR_table_construct(init_closure: Closure,
         for symbol in symbols:
             new_closure = old_closure.deep_copy()
             ret, retr, reta = new_closure.add_and_extend(symbol)
-            print(ret, symbol, _closure_index)
             # Goto-Reduce Conflict
             if ret == Closure.AddExtendReturn.CONFLICT:
                 ret, retr, reta = conflict_callback(
@@ -711,7 +710,7 @@ def LR_table_construct(init_closure: Closure,
     while closure_index < len(closures):
         try_symbols(closures[closure_index], symbols, closure_index)
         closure_index += 1
-    debug = True
+    debug = False
     if debug:
         table.print()
         for i in range(len(closures)):
@@ -787,9 +786,11 @@ class LRParserFramework(ParserFramework):
         """
         action = self._table.get_action(parse_unit.name, self._closure_index)
 
-        def do_action(action):
-            if parse_unit.name == '@EOF':
+        def do_action(action, redo = False):
+            if redo:
                 if action.action_type == LRAction.ActionType.GOTO:
+                    self._closure_index = action.action_value
+                    self._closure_index_stack.put(self._closure_index)
                     action = self._table.get_action(parse_unit.name, action.action_value)
             # ACC
             if action.action_type == LRAction.ActionType.ACC:
@@ -801,11 +802,9 @@ class LRParserFramework(ParserFramework):
             elif action.action_type == LRAction.ActionType.GOTO:
                 self._closure_index = action.action_value
                 self._closure_index_stack.put(self._closure_index)
-                print(f"name:{parse_unit.name} goto:{action.action_value}")
             # REDUCE
             elif action.action_type == LRAction.ActionType.REDUCE:
                 production: Production = action.action_value
-                print(f"name:{parse_unit.name} reduce:{production.pre} -> {' '.join(production.sufs)}")
                 position: Tuple[int, int] = (0, 0)
                 stack_parse_units: List[ParseUnit] = []
                 # pop stack
@@ -813,6 +812,7 @@ class LRParserFramework(ParserFramework):
                     stack_parse_unit: ParseUnit = self._stack.get()
                     position = stack_parse_unit.position
                     stack_parse_units.insert(0, stack_parse_unit)
+                    self._closure_index_stack.get()
                 # invoke semant callback when production was reduced
                 value = production.semant_callback(stack_parse_units)
                 # put new reduced nonterminal to stack
@@ -823,23 +823,14 @@ class LRParserFramework(ParserFramework):
                 if self._closure_index_stack.empty():
                     closure_index = 0
                 else:
-                    self._closure_index_stack.get()
                     closure_index = self._closure_index_stack.queue[-1]
-                # ERR mean null when check after-reduce goto
-                while self._table.get_action(production.pre, closure_index) == LRAction.ActionType.ERR:
-                    if self._closure_index_stack.empty():
-                        closure_index = 0
-                    else:
-                        self._closure_index_stack.get()
-                        closure_index = self._closure_index_stack.queue[-1]
-                # get new action, if is goto just do it, if is reduce, then do reduce again. this may not be acc since acc is after one goto action.
                 new_action = self._table.get_action(
                     production.pre, closure_index)
                 return new_action
 
         new_action = do_action(action)
         while new_action:
-            new_action = do_action(new_action)
+            new_action = do_action(new_action, True)
         # put new unit, shift it
         self._stack.put(parse_unit)
 
