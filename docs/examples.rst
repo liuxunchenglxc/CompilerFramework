@@ -1,15 +1,16 @@
-from lexer_framework import HLlangLexerFramework, LexerFramework, LexerResult
-from lr_parser import LR_0_Parser, LR_1_Parser
-from parser_framework import ParseUnit
-from typing import List
-from io import StringIO
-import unittest
+Examples
+=============
+A simple math parser example for LR(0) and LR(1) Parsers in lr_parser.py
+************************************************************************
+.. code-block:: python
+"""
+This example is also in unit_test.py.
+"""
+class LR_ParserInMath:
 
-class TestLR_ParserInMath(unittest.TestCase):
     """
-    Test LR(0) and LR(1) parsers in math expressions
+    The Semant Callback for calc the math expression, and passing the value
     """
-    
     @staticmethod
     def _sament_add(parse_items: List[ParseUnit]):
         value1, value2 = parse_items[0].value, parse_items[2].value
@@ -54,6 +55,9 @@ class TestLR_ParserInMath(unittest.TestCase):
         value = parse_items[1].value
         return value
 
+    """
+    The callbacks to recieve the results from Lexical Analysis and invoke Parser.
+    """
     @staticmethod
     def _on_lexed_callback(lexer_result: LexerResult):
         return lexer_result.name != "Null"
@@ -65,12 +69,12 @@ class TestLR_ParserInMath(unittest.TestCase):
         self.parser.on_finish()
         print(f"Parsed {num} items.")
 
+    """
+    Build the math lexer and parser
+    """
     def build_math_parser(self, k = 0):
-        """
-        Build a simple math parser
-        """
         self.lexer = HLlangLexerFramework()
-
+        # Add the regex rules
         self.lexer.add_operators("(", LexerFramework.none_format_cap_text, 0, 0, "\\(")
         self.lexer.add_operators(")", LexerFramework.none_format_cap_text, 0, 0, "\\)")
         self.lexer.add_operators("Add", LexerFramework.none_format_cap_text, 0, 0, "\\+")
@@ -81,16 +85,16 @@ class TestLR_ParserInMath(unittest.TestCase):
         self.lexer.add_constants("Number", HLlangLexerFramework.convert_float, 0, 0, False, "(-|\\+)?\\d+(\\.\\d+)?")
         self.lexer.add_identifier("Variable")
         self.lexer.add_lex_item("Null", "\\s+", HLlangLexerFramework.drop_null)
-
+        # Add the lexer callback
         self.lexer.on_lexed_callback = self._on_lexed_callback
         self.lexer.on_accepted_callback = self._on_accepted_callback
         self.lexer.on_finished_callback = self._on_finished_callback
-
+        # Choose the Parser
         if k == 0:
             self.parser = LR_0_Parser()
         else:
             self.parser = LR_1_Parser()
-
+        # Add the semant callbacks for math calc and value passing
         self.parser.add_semant_callback_dict("SemantAdd", self._sament_add)
         self.parser.add_semant_callback_dict("SemantSub", self._sament_sub)
         self.parser.add_semant_callback_dict("SemantMul", self._sament_mul)
@@ -98,8 +102,9 @@ class TestLR_ParserInMath(unittest.TestCase):
         self.parser.add_semant_callback_dict("SemantSentValue0", self._sament_sent_value0)
         self.parser.add_semant_callback_dict("SemantSentValue1", self._sament_sent_value1)
         self.parser.add_semant_callback_dict("SemantAssign", self._sament_assign)
-
+        # Set different productions for LR(0) and LR(1)
         if k == 0:
+            # LR(0) support +,-,*,/
             self.parser.add_production_by_multi_str("SSS -> SS SSS", # Multi sentences
                                                     "SSS -> SS",
                                                     "SS -> Variable Assign S @SemantAssign", # sentence
@@ -114,6 +119,7 @@ class TestLR_ParserInMath(unittest.TestCase):
                                                     "V -> Number @SemantSentValue0",
                                                     "V -> Variable @SemantSentValue0")
         else:
+            # LR(1) support +,-,*,/,(,)
             self.parser.add_production_by_multi_str("SSS -> SS SSS", # Multi sentences
                                                     "SSS -> SS",
                                                     "SS -> Variable Assign S @SemantAssign", # sentence
@@ -125,7 +131,7 @@ class TestLR_ParserInMath(unittest.TestCase):
                                                     "S -> V @SemantSentValue0",
                                                     "V -> Number @SemantSentValue0",
                                                     "V -> Variable @SemantSentValue0")
-
+        # Build LR Table
         self.parser.build_table()
 
     def test_LR_0(self):
@@ -139,7 +145,7 @@ class TestLR_ParserInMath(unittest.TestCase):
         print(s, "\n")
         ss = StringIO(s)
         self.lexer.lex_stream(ss)
-        self.assertTrue(self.parser.acc)
+        print(f"The parser test result is {self.parser.acc}")
     
     def test_LR_1(self):
         print()
@@ -152,8 +158,4 @@ class TestLR_ParserInMath(unittest.TestCase):
         print(s, "\n")
         ss = StringIO(s)
         self.lexer.lex_stream(ss)
-        self.assertTrue(self.parser.acc)
-
-
-if __name__ == '__main__':
-    unittest.main()
+        print(f"The parser test result is {self.parser.acc}")
