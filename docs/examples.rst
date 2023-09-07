@@ -167,3 +167,68 @@ A simple math parser example for LR(0) and LR(1) Parsers in lr_parser.py
             ss = StringIO(s)
             self.lexer.lex_stream(ss)
             print(f"The parser test result is {self.parser.acc}")
+
+    if __name__ == '__main__':
+        LR_ParserInMath().test_LR_0()
+        LR_ParserInMath().test_LR_1()
+
+This should output:
+.. code-block::
+
+    Expression:
+    a = 1 + 2 * 3 - 4 / 5
+    b = 5+4*3-2/1
+    c=1+2-3 * 4/5
+    d =5+4 -  3*2/1
+
+    Mul: 2.0 * 3.0 -> 6.0
+    Div: 4.0 / 5.0 -> 0.8
+    Sub: 6.0 - 0.8 -> 5.2
+    Add: 1.0 + 5.2 -> 6.2
+    Assign: a = 6.2
+    Mul: 4.0 * 3.0 -> 12.0
+    Div: 2.0 / 1.0 -> 2.0
+    Sub: 12.0 - 2.0 -> 10.0
+    Add: 5.0 + 10.0 -> 15.0
+    Assign: b = 15.0
+    Div: 4.0 / 5.0 -> 0.8
+    Mul: 3.0 * 0.8 -> 2.4000000000000004
+    Sub: 2.0 - 2.4000000000000004 -> -0.40000000000000036
+    Add: 1.0 + -0.40000000000000036 -> 0.5999999999999996
+    Assign: c = 0.5999999999999996
+    Div: 2.0 / 1.0 -> 2.0
+    Mul: 3.0 * 2.0 -> 6.0
+    Sub: 4.0 - 6.0 -> -2.0
+    Add: 5.0 + -2.0 -> 3.0
+    Assign: d = 3.0
+    Parsed 44 items.
+    The parser test result is True
+
+    Expression:
+    a = 1 + 2 * (3 - 4) / 5
+    b = 5+4*(3-2)/1
+    c=1+(2-3) * 4/5
+    d =5+(4 -  3)*2/1
+
+    Sub: 3.0 - 4.0 -> -1.0
+    Div: -1.0 / 5.0 -> -0.2
+    Mul: 2.0 * -0.2 -> -0.4
+    Add: 1.0 + -0.4 -> 0.6
+    Assign: a = 0.6
+    Sub: 3.0 - 2.0 -> 1.0
+    Div: 1.0 / 1.0 -> 1.0
+    Mul: 4.0 * 1.0 -> 4.0
+    Add: 5.0 + 4.0 -> 9.0
+    Assign: b = 9.0
+    Sub: 2.0 - 3.0 -> -1.0
+    Div: 4.0 / 5.0 -> 0.8
+    Mul: -1.0 * 0.8 -> -0.8
+    Add: 1.0 + -0.8 -> 0.19999999999999996
+    Assign: c = 0.19999999999999996
+    Sub: 4.0 - 3.0 -> 1.0
+    Div: 2.0 / 1.0 -> 2.0
+    Mul: 1.0 * 2.0 -> 2.0
+    Add: 5.0 + 2.0 -> 7.0
+    Assign: d = 7.0
+    Parsed 52 items.
+    The parser test result is True
