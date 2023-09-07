@@ -13,6 +13,10 @@ This framework has both Python 3 and C# versions. C# version has stopped mainten
 
 At present (2023-09-02), actually, the row number of Python is just almost same as C#'s. It seems that this repository is about to become Python repository,  lol.
 
+(2023-09-07) 终于把LR(0)和LR(1)的测试都跑通了。作者也文档里添加了一个解析数学表达式的简单例子。
+
+(2023-09-07) Eventually, both LR(0) and LR(1) are running successfully, and the author added an example of parsing math expressions in the docs.
+
 # Python Version
 
 - **开发人员**: `刘迅承`
