@@ -21,6 +21,8 @@ from queue import LifoQueue
 from parser_framework import ParserFramework, Production, ParseUnit
 
 
+debug = False
+
 def add_augmented_grammar(productions: List[Production], semant_callback: Callable[[List[ParseUnit]], Any] = ParserFramework.none_semant_callback, attr: Any = None) -> List[Production]:
     """
     Add augmented grammar for the first production and return new `productions`, the new 'S' is named "@S".
@@ -122,7 +124,7 @@ class LRkItem:
         follow : :obj:`list` of str, optional
             the follow, number is k
         """
-        self.follow = follow
+        self.follow = [i for i in follow]
 
     def deep_copy(self):
         """
@@ -145,7 +147,7 @@ class LRkItem:
                 sufs[self.dot_pos] = '•' + sufs[self.dot_pos]
             else:
                 sufs[-1] = sufs[-1] + '•'
-        return self.production.pre + " -> " + " ".join(sufs)
+        return self.production.pre + " -> " + " ".join(sufs) + "," + ",".join(self.follow)
 
 
 class Closure:
@@ -184,6 +186,8 @@ class Closure:
         self.terminals: List[str] = []
         self.nonterminals: List[str] = []
         self.symbol_LR_item_dict: Dict[str, List[LRkItem]] = {}
+        self.first_dict: Dict[str, List[str]] = {}
+        self.follow_dict: Dict[str, List[str]] = {}
         self.k = k
         if not productions:
             return
@@ -221,27 +225,24 @@ class Closure:
         self.init_recieved_produtions = self.recieved_productions
         # LR(0) is ok, next is for LR(1)
 
-        self.first_dict: Dict[str, List[str]] = {}
 
         def find_first(self, first: str):
-            # terminal is first
-            if first in self.terminals:
-                return [first]
             # searched first
             if first in self.first_dict:
                 return self.first_dict[first]
             # nonterminal and unsearched, do it.
             first_list = []
             for LR_item in self.symbol_LR_item_dict[first]:
-                first = LR_item.production.sufs[0]
-                # next recurrence
-                first_list += find_first(self, first)
+                temp_first = LR_item.production.sufs[0]
+                if temp_first != first and temp_first in self.nonterminals:
+                    # next recurrence
+                    first_list += find_first(self, temp_first)
+                elif temp_first in self.terminals:
+                    first_list.append(temp_first)
             # add search result
-            self.first_dict[first] = first_list
+            self.first_dict[first] = list(set(first_list))
             # return to upper recurrence
             return first_list
-
-        self.follow_dict: Dict[str, List[str]] = {}
 
         if k == 1:
             # calc FIRST set
@@ -259,15 +260,27 @@ class Closure:
                             if follow_symbol in self.terminals:
                                 self.follow_dict[symbol].append(follow_symbol)
                             else:
-                                self.follow_dict[symbol] += self.first_dict[follow_symbol]
+                                self.follow_dict[symbol] = list(set(self.follow_dict[symbol] + [i for i in self.first_dict[follow_symbol]]))
+            # outline follow
+            follow_num = 0
+            while follow_num < sum([len(i) for i in list(self.follow_dict.values())]):
+                follow_num = sum([len(i) for i in list(self.follow_dict.values())])
+                for items in list(self.symbol_LR_item_dict.values()):
+                    for LR_item in items:
+                        if LR_item.production.sufs[-1] in list(self.symbol_LR_item_dict.keys()):
+                            s1 = LR_item.production.sufs[-1]
+                            s2 = LR_item.production.pre
+                            if s1 in self.nonterminals:
+                                self.follow_dict[s1] = list(set(self.follow_dict[s1] + [i for i in self.follow_dict[s2]]))
             # add lookahead terminals
             temp_symbol_LR_item_dict = {}
             for nonterminal in self.nonterminals:
                 LR_items = []
                 for LR_item in self.symbol_LR_item_dict[nonterminal]:
                     for follow in set(self.follow_dict[nonterminal]):
-                        LR_item.set_follow([follow])
-                        LR_items.append(LR_item)
+                        LR_item_t = LR_item.deep_copy()
+                        LR_item_t.set_follow([follow])
+                        LR_items.append(LR_item_t)
                 temp_symbol_LR_item_dict[nonterminal] = LR_items
             self.symbol_LR_item_dict = temp_symbol_LR_item_dict
 
@@ -290,21 +303,25 @@ class Closure:
             if self.first_dict == {}:
                 temp.first_dict = {}
             else:
-                temp.first_dict[nonterminal] = [
-                    i for i in self.first_dict[nonterminal]]
+                if nonterminal in self.first_dict:
+                    temp.first_dict[nonterminal] = [
+                        i for i in self.first_dict[nonterminal]]
             if self.follow_dict == {}:
                 temp.follow_dict = {}
             else:
-                temp.follow_dict[nonterminal] = [
-                    i for i in self.follow_dict[nonterminal]]
+                if nonterminal in self.follow_dict:
+                    temp.follow_dict[nonterminal] = [
+                        i for i in self.follow_dict[nonterminal]]
         return temp
 
     def print(self) -> str:
-        s = ""
+        ss = []
         for items in list(self.symbol_LR_item_dict.values()):
-            for item in items:
-                s = item.print() + "\n"
-        return s
+            if items:
+                for item in items:
+                    ss.append(item.print())
+        ss.sort()
+        return "\n".join(ss)
 
     AddExtendReturn = Enum("AddExtendReturn", "NONE REDUCE ADD CONFLICT")
 
@@ -330,7 +347,7 @@ class Closure:
             for item in items:
                 # try reduce item
                 if item.is_on_reduce(symbol):
-                    reduce_items.append(item)
+                    reduce_items.append(item.deep_copy())
                     is_reduce = True
         # Find GOTO
         is_add = False
@@ -340,7 +357,7 @@ class Closure:
             for item in items:
                 # try add symbol to item, and not change self.symbol_LR_item_dict
                 if item.add(symbol):
-                    core_items.append(item)
+                    core_items.append(item.deep_copy())
                     is_add = True
         # Return Nothing
         if not is_add and not is_reduce:
@@ -354,7 +371,8 @@ class Closure:
         for item in core_items:
             # check the follow symbol to extend
             if item.dot_pos < len(item.production.sufs):
-                check_symbol.append(item.production.sufs[item.dot_pos])
+                symbol = item.production.sufs[item.dot_pos]
+                check_symbol.append(symbol)
         list_len = -1
         while len(check_list) != list_len:
             list_len = len(check_list)
@@ -379,7 +397,7 @@ class Closure:
         # add core items
         for i in range(len(core_items)):
             index = len(core_items) - 1 - i
-            core_item = core_items[index]
+            core_item = core_items[index].deep_copy()
             if core_item.production.pre in self.symbol_LR_item_dict:
                 self.symbol_LR_item_dict[core_item.production.pre] = [
                     core_item] + self.symbol_LR_item_dict[core_item.production.pre]
@@ -389,61 +407,54 @@ class Closure:
 
         # LR(0) is ok, next is for LR(1)
 
-        self.first_dict: Dict[str, List[str]] = {}
-
-        def find_first(self, first: str):
-            # terminal is first
-            if first in self.terminals:
-                return [first]
-            # searched first
-            if first in self.first_dict:
-                return self.first_dict[first]
-            # nonterminal and unsearched, do it.
-            first_list = []
-            for LR_item in self.symbol_LR_item_dict[first]:
-                first = LR_item.production.sufs[0]
-                # next recurrence
-                first_list += find_first(self, first)
-            # add search result
-            self.first_dict[first] = first_list
-            # return to upper recurrence
-            return first_list
-
         self.follow_dict: Dict[str, List[str]] = {}
 
         if self.k == 1:
-            # calc FIRST set
-            for nonterminal in self.nonterminals:
-                find_first(self, nonterminal)
             # calc FOLLOW set
             for nonterminal in self.nonterminals:
                 self.follow_dict[nonterminal] = []
-            for nonterminal in self.nonterminals:
-                for LR_item in self.symbol_LR_item_dict[nonterminal]:
+            # add core follows
+            for core_item in core_items:
+                self.follow_dict[core_item.production.pre].append(core_item.follow[0])
+            #  for key in list(symbol_follow_dict.keys()):
+            #      self.follow_dict[key] = symbol_follow_dict[key]
+            # inline follow
+            for items in list(self.symbol_LR_item_dict.values()):
+                for LR_item in items:
                     if len(LR_item.production.sufs) < 2:
                         continue
-                    # add '@EOF' for last one
-                    if LR_item.production.sufs[-1] in self.nonterminals:
-                        self.follow_dict[LR_item.production.sufs[-1]
-                                         ].append('@EOF')
                     for symbol, follow_symbol in zip(LR_item.production.sufs[:-1], LR_item.production.sufs[1:]):
                         if symbol in self.nonterminals:
                             if follow_symbol in self.terminals:
                                 self.follow_dict[symbol].append(follow_symbol)
                             else:
-                                self.follow_dict[symbol] += self.first_dict[follow_symbol]
+                                self.follow_dict[symbol] = list(set(self.follow_dict[symbol] + [i for i in self.first_dict[follow_symbol]]))
+            # outline follow
+            follow_num = 0
+            while follow_num < sum([len(i) for i in list(self.follow_dict.values())]):
+                follow_num = sum([len(i) for i in list(self.follow_dict.values())])
+                for items in list(self.symbol_LR_item_dict.values()):
+                    for LR_item in items:
+                        if LR_item.production.sufs[-1] in list(self.symbol_LR_item_dict.keys()):
+                            s1 = LR_item.production.sufs[-1]
+                            s2 = LR_item.production.pre
+                            if s1 in self.nonterminals:
+                                self.follow_dict[s1] = list(set(self.follow_dict[s1] + [i for i in self.follow_dict[s2]]))
+
             # add lookahead terminals
             temp_symbol_LR_item_dict = {}
             for nonterminal in self.nonterminals:
                 LR_items = []
-                for LR_item in self.symbol_LR_item_dict[nonterminal]:
-                    # do not change the core item
-                    if LR_item.follow:
-                        LR_items.append(LR_item)
-                        continue
-                    for follow in set(self.follow_dict[nonterminal]):
-                        LR_item.set_follow([follow])
-                        LR_items.append(LR_item)
+                if nonterminal in self.symbol_LR_item_dict:
+                    for LR_item in self.symbol_LR_item_dict[nonterminal]:
+                        # do not change the core item
+                        if LR_item.follow:
+                            LR_items.append(LR_item.deep_copy())
+                            continue
+                        for follow in list(set(self.follow_dict[nonterminal])):
+                            item = LR_item.deep_copy()
+                            item.set_follow([follow])
+                            LR_items.append(item)
                 temp_symbol_LR_item_dict[nonterminal] = LR_items
             self.symbol_LR_item_dict = temp_symbol_LR_item_dict
         if is_reduce:
@@ -540,7 +551,7 @@ class LRTable:
     The LR Table for action and goto. This is mainly defined this data structure. Construct LR table use :obj:`LR_table_construct()`.
     """
 
-    def __init__(self, closure_num: int, terminals: List[str], nonterminals: List[str], prepared_dict: Dict[str, List[LRAction]] = {}) -> None:
+    def __init__(self, closure_num: int, terminals: List[str], nonterminals: List[str]) -> None:
         """
         The LR Table for action and goto. This is mainly defined this data structure.
 
@@ -552,23 +563,19 @@ class LRTable:
             the terminals of init closures
         nonterminals : :obj:`list` of str
             the nonterminals of init closures
-        prepared_dict : :obj:`Dict[str, List[LRAction]]`, optional
-            The inner prepared_dict if have. Reserve for deep copy. For normal usage, KEEP this empty '{}'. 
         """
-        self._table_dict: Dict[str, List[LRAction]] = prepared_dict
+        self._table_dict: Dict[str, List[LRAction]] = {}
         self.closure_num = closure_num
         self.terminals = terminals
         self.nonterminals = nonterminals
-        # build empty dict
-        if not prepared_dict:
-            for i in terminals:
-                self._table_dict[i] = [LRAction() for _ in range(closure_num)]
-            for i in nonterminals:
-                self._table_dict[i] = [LRAction() for _ in range(closure_num)]
-            if '@EOF' not in self._table_dict:
-                self.terminals.append('@EOF')
-                self._table_dict['@EOF'] = [LRAction()
-                                            for _ in range(closure_num)]
+        for i in terminals:
+            self._table_dict[i] = [LRAction() for _ in range(closure_num)]
+        for i in nonterminals:
+            self._table_dict[i] = [LRAction() for _ in range(closure_num)]
+        if '@EOF' not in self._table_dict:
+            self.terminals.append('@EOF')
+            self._table_dict['@EOF'] = [LRAction()
+                                        for _ in range(closure_num)]
 
     def set_action(self, symbol: str, closure_index: int, action: LRAction) -> None:
         """
@@ -710,16 +717,13 @@ def LR_table_construct(init_closure: Closure,
     while closure_index < len(closures):
         try_symbols(closures[closure_index], symbols, closure_index)
         closure_index += 1
-    debug = False
     if debug:
         table.print()
         for i in range(len(closures)):
             closure = closures[i]
             print()
             print(str(i) + ":")
-            for items in list(closure.symbol_LR_item_dict.values()):
-                for item in items:
-                    print(item.print())
+            print(closure.print())
     return table
 
 
@@ -800,11 +804,15 @@ class LRParserFramework(ParserFramework):
                 raise LRTableERRException(parse_unit, self._closure_index)
             # GOTO / Shift
             elif action.action_type == LRAction.ActionType.GOTO:
+                if debug:
+                    print(self._closure_index, parse_unit.name, "goto", action.action_value)
                 self._closure_index = action.action_value
                 self._closure_index_stack.put(self._closure_index)
             # REDUCE
             elif action.action_type == LRAction.ActionType.REDUCE:
                 production: Production = action.action_value
+                if debug:
+                    print(self._closure_index, parse_unit.name, "reduce", production.pre, "->", *production.sufs)
                 position: Tuple[int, int] = (0, 0)
                 stack_parse_units: List[ParseUnit] = []
                 # pop stack
