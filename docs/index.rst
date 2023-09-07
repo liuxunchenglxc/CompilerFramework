@@ -6,12 +6,13 @@
 Welcome to CompilerFramework-Python's documentation!
 ====================================================
 
-examples
+
 
 .. toctree::
    :maxdepth: 4
    :caption: Contents
 
+   examples
    lexer_framework
    parser_framework
    bu_parser_framework
