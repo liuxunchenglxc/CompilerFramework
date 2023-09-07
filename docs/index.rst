@@ -6,8 +6,6 @@
 Welcome to CompilerFramework-Python's documentation!
 ====================================================
 
-
-
 .. toctree::
    :maxdepth: 4
    :caption: Contents
