@@ -173,7 +173,6 @@ A simple math parser example for LR(0) and LR(1) Parsers in lr_parser.py
         LR_ParserInMath().test_LR_1()
 
 This should output:
-.. code-block::
 
     Expression:
     a = 1 + 2 * 3 - 4 / 5
