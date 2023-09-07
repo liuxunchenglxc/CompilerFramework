@@ -7,6 +7,13 @@ A simple math parser example for LR(0) and LR(1) Parsers in lr_parser.py
     """
     This example is also in unit_test.py.
     """
+    from lexer_framework import HLlangLexerFramework, LexerFramework, LexerResult
+    from lr_parser import LR_0_Parser, LR_1_Parser
+    from parser_framework import ParseUnit
+    from typing import List
+    from io import StringIO
+
+
     class LR_ParserInMath:
     
         """
