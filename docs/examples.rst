@@ -3,6 +3,7 @@ Examples
 A simple math parser example for LR(0) and LR(1) Parsers in lr_parser.py
 ************************************************************************
 .. code-block:: python
+
     """
     This example is also in unit_test.py.
     """
