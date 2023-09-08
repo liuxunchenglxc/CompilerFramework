@@ -152,12 +152,14 @@ class LRkItem:
 
 class Closure:
     """
-    Closure of LR item sets, including LR(0) and LR(1)
+    Closure of LR item sets, including LR(0), SLR and LR(1)
 
     Parameters
     ----------
     self.k : int
         0 or 1, LR(0) or LR(1)
+    self.SLR : bool
+        SLR, only k=0 effect.
     self.recieved_productions : :obj:`list` of :obj:`Production`
         productions accepted to closure by core production in `__init__`
     self.symbol_LR_item_dict : :obj:`Dict[str, List[LRkItem]]`
@@ -172,9 +174,9 @@ class Closure:
         For LR(1), the follow set for each nonterminal
     """
 
-    def __init__(self, productions: List[Production], k: int = 0) -> None:
+    def __init__(self, productions: List[Production], k: int = 0, SLR: bool = False) -> None:
         """
-        Closure of LR item sets, including LR(0) and LR(1), core production is the first product in `productions`
+        Closure of LR item sets, including LR(0), SLR and LR(1), core production is the first product in `productions`
 
         Parameters
         ----------
@@ -182,6 +184,8 @@ class Closure:
             productions to calc `Closure`
         k : int, optional
             LR(k), now support 0 and 1, default 0
+        SLR : bool, optional
+            SLR, only k=0 effect.
         """
         self.terminals: List[str] = []
         self.nonterminals: List[str] = []
@@ -189,6 +193,7 @@ class Closure:
         self.first_dict: Dict[str, List[str]] = {}
         self.follow_dict: Dict[str, List[str]] = {}
         self.k = k
+        self.SLR = SLR
         if not productions:
             return
         # check all production
@@ -244,7 +249,7 @@ class Closure:
             # return to upper recurrence
             return first_list
 
-        if k == 1:
+        if k == 1 or SLR == True:
             # calc FIRST set
             for nonterminal in self.nonterminals:
                 find_first(self, nonterminal)
@@ -654,6 +659,10 @@ def LR_table_construct(init_closure: Closure,
     """
     if '@EOF' not in init_closure.terminals:
         init_closure.terminals.append('@EOF')
+    # Get SLR setting
+    SLR = False
+    if init_closure.k == 0 and init_closure.SLR:
+        SLR = True
     # Build init table
     nonterminals = init_closure.nonterminals
     table = LRTable(1, init_closure.terminals, nonterminals)
@@ -678,6 +687,14 @@ def LR_table_construct(init_closure: Closure,
         for symbol in symbols:
             new_closure = old_closure.deep_copy()
             ret, retr, reta = new_closure.add_and_extend(symbol)
+            # SLR filter non-follow reduce out
+            if SLR:
+                if ret == Closure.AddExtendReturn.CONFLICT:
+                    new_retr = []
+                    for r in retr:
+                        if symbol in init_closure.follow_dict[r.production.pre]:
+                            new_retr.append(r)
+                    retr = new_retr
             # Goto-Reduce Conflict
             if ret == Closure.AddExtendReturn.CONFLICT:
                 ret, retr, reta = conflict_callback(
@@ -755,7 +772,7 @@ class LRTableERRException(Exception):
 
 class LRParserFramework(ParserFramework):
     """
-    The basic LR Parser Framework for LR k=0,1.
+    The basic LR Parser Framework for LR k=0,1 and SLR
 
     Parameters
     ----------
@@ -765,19 +782,22 @@ class LRParserFramework(ParserFramework):
         is or not reached ACC after parsing
     """
 
-    def __init__(self, k=0) -> None:
+    def __init__(self, k:int=0, SLR:bool=False) -> None:
         """
-        The basic LR Parser Framework for LR k=0,1.
+        The basic LR Parser Framework for LR k=0,1 and SLR
 
         Parameters
         ----------
-        k : int
+        k : int, optional
             the k of LR, 0 or 1.
+        SLR : bool, optional
+            SLR, only k=0 effect.
         """
         super().__init__()
         self.k = k
         self.acc = False
         self._closure_index_stack = LifoQueue()
+        self.SLR = SLR
 
     def parse(self, parse_unit: ParseUnit) -> None:
         """
@@ -885,7 +905,7 @@ class LRParserFramework(ParserFramework):
         """
         productions = add_augmented_grammar(
             self.productions, augmented_grammar_semant_callback, augmented_grammar_attr)
-        init_closure = Closure(productions, self.k)
+        init_closure = Closure(productions, self.k, self.SLR)
         self._table = LR_table_construct(init_closure, conflict_callback)
         self._closure_index: int = 0
         self._closure_index_stack.put(0)

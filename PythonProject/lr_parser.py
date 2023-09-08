@@ -173,3 +173,18 @@ class LR_1_Parser(LR_0_Parser):
     def __init__(self) -> None:
         super().__init__()
         self.k = 1
+
+
+class SLR_Parser(LR_0_Parser):
+    """
+    The SLR Parser base on LR_0_Parser -> LRParserFramework
+
+    Parameters
+    ----------
+    self.acc : bool
+        is or not reached ACC after parsing
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.SLR = True
