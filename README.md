@@ -38,11 +38,11 @@ At present (2023-09-02), actually, the row number of Python is just almost same 
 - [x] LR(0), SLR and LR(1) Parser with operator priority (Bottom-up parsing high class)
 - [x] LR(0), SLR and LR(1) Unit Test and Bugfix (Bottom-up part)
 ### Doing
-- [ ] LALR(1) (Bottom-up parsing)
-- [ ] Test LALR(1) Parser
-### Todo
 - [ ] Top-down Parser Framework
+### Todo
 - [ ] Something more...
+### No planning
+- LALR(1) (The author doesn't have such idea after coding LR(1) and SLR parser)
 
 ## Docs
 https://compilerframework.readthedocs.io/en/latest/index.html
